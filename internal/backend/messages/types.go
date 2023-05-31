@@ -22,6 +22,7 @@ type EndTurn struct {
 	MatchID string `json:"id"`
 }
 
+// TODO: remove this
 type PlaceCard struct {
 	MsgType string `json:"msgtype"`
 	CardID  string `json:"id"`
@@ -29,6 +30,7 @@ type PlaceCard struct {
 	Y       int64  `json:"y"`
 }
 
+// TODO: remove this
 type MoveCard struct {
 	MsgType string `json:"msgtype"`
 	CardID  string `json:"id"`
@@ -36,6 +38,7 @@ type MoveCard struct {
 	Y       int64  `json:"y"`
 }
 
+// TODO: remove this
 type Attack struct {
 	MsgType string `json:"msgtype"`
 	CardID  string `json:"id"`

@@ -124,6 +124,8 @@ func InitWsConnection(gameState *GameState) *websocket.Conn {
 					// Invalid json
 					panic(err)
 				}
+
+				gameState.lastRenderUpdate = time.Now()
 				gameState.ListOfAvailableGames = msg.Matches
 			}
 

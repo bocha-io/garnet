@@ -10,6 +10,12 @@ import (
 	"github.com/hanchon/garnet/internal/logger"
 )
 
+// func ProcessMempool(database *data.Database, quit *bool) {
+// 	logger.LogInfo("processing mempool...")
+// 	c := eth.GetEthereumClient("http://localhost:8545/")
+//     c.PendingTransactionCount()
+// }
+
 func Process(database *data.Database, quit *bool) {
 	logger.LogInfo("indexer is starting...")
 	c := eth.GetEthereumClient("http://localhost:8545/")

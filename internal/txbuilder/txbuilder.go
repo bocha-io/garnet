@@ -33,47 +33,47 @@ func GetWallet(accountID int) (*hdwallet.Wallet, accounts.Account, error) {
 	return wallet, account, nil
 }
 
-func SendTransaction(accountID int, message string, args ...interface{}) error {
+func SendTransaction(accountID int, message string, args ...interface{}) (common.Hash, error) {
 	// Generate the wallet
 	wallet, account, err := GetWallet(accountID)
 	if err != nil {
-		return err
+		return common.Hash{}, err
 	}
 
 	// Get coins
 	_, err = Faucet(account.Address.Hex())
 	if err != nil {
-		return err
+		return common.Hash{}, err
 	}
 
 	// Send transaction
 	client, err := ethclient.Dial(endpoint)
 	if err != nil {
-		return err
+		return common.Hash{}, err
 	}
 
 	nonce, err := client.PendingNonceAt(context.Background(), account.Address)
 	if err != nil {
-		return err
+		return common.Hash{}, err
 	}
 
 	value := big.NewInt(0)
 	gasLimit := uint64(20000000)
 	gasPrice, err := client.SuggestGasPrice(context.Background())
 	if err != nil {
-		return err
+		return common.Hash{}, err
 	}
 
 	var data []byte
 	if len(args) > 0 {
 		data, err = IWorldABI.Pack(message, args...)
 		if err != nil {
-			return err
+			return common.Hash{}, err
 		}
 	} else {
 		data, err = IWorldABI.Pack(message)
 		if err != nil {
-			return err
+			return common.Hash{}, err
 		}
 	}
 
@@ -82,25 +82,25 @@ func SendTransaction(accountID int, message string, args ...interface{}) error {
 
 	chainID, err := client.NetworkID(context.Background())
 	if err != nil {
-		return err
+		return common.Hash{}, err
 	}
 
 	privateKey, err := wallet.PrivateKey(account)
 	if err != nil {
-		return err
+		return common.Hash{}, err
 	}
 
 	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainID), privateKey)
 	if err != nil {
-		return err
+		return common.Hash{}, err
 	}
 
 	err = client.SendTransaction(context.Background(), signedTx)
 	if err != nil {
-		return err
+		return common.Hash{}, err
 	}
 
 	logger.LogDebug(fmt.Sprintf("[backend] tx sent (%s) with hash: %s", message, signedTx.Hash().Hex()))
 
-	return nil
+	return signedTx.Hash(), nil
 }

@@ -12,6 +12,7 @@ import (
 
 type FieldData interface {
 	String() string
+	Type() string
 }
 
 type Field struct {
@@ -21,6 +22,10 @@ type Field struct {
 
 func (f Field) String() string {
 	return fmt.Sprintf("\"%s\":%s", f.Key, f.Data.String())
+}
+
+func (f Field) Type() string {
+	return f.Data.Type()
 }
 
 type BytesField struct {
@@ -35,6 +40,10 @@ func (f BytesField) String() string {
 	return fmt.Sprintf("\"%s\"", hexutil.Encode(f.Data))
 }
 
+func (f BytesField) Type() string {
+	return "BytesField"
+}
+
 type StringField struct {
 	Data string
 }
@@ -45,6 +54,10 @@ func NewStringField(data []byte) StringField {
 
 func (f StringField) String() string {
 	return fmt.Sprintf("\"%s\"", f.Data)
+}
+
+func (f StringField) Type() string {
+	return "StringField"
 }
 
 type ArrayField struct {
@@ -70,6 +83,10 @@ func (f ArrayField) String() string {
 	return ret
 }
 
+func (f ArrayField) Type() string {
+	return "ArrayField"
+}
+
 type UintField struct {
 	Data big.Int
 }
@@ -84,6 +101,10 @@ func (f UintField) String() string {
 	return f.Data.String()
 }
 
+func (f UintField) Type() string {
+	return "UintField"
+}
+
 type IntField struct {
 	Data big.Int
 }
@@ -94,6 +115,10 @@ func NewIntField(data []byte) IntField {
 
 func (f IntField) String() string {
 	return f.Data.String()
+}
+
+func (f IntField) Type() string {
+	return "IntField"
 }
 
 type BoolField struct {
@@ -111,6 +136,10 @@ func (f BoolField) String() string {
 	return "false"
 }
 
+func (f BoolField) Type() string {
+	return "BoolField"
+}
+
 type AddressField struct {
 	Data common.Address
 }
@@ -121,6 +150,10 @@ func NewAddressField(encoding []byte) AddressField {
 
 func (f AddressField) String() string {
 	return fmt.Sprintf("\"%s\"", f.Data.Hex())
+}
+
+func (f AddressField) Type() string {
+	return "AddressField"
 }
 
 func FieldWithDefautValue(schemaType mudhelpers.SchemaType) FieldData {

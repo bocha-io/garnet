@@ -130,7 +130,7 @@ func RegisterEndpoint(response http.ResponseWriter, request *http.Request, db *d
 				logger.LogError(fmt.Sprintf("[backend] registering the wallet %s in the chain %s", account.Address.Hex(), registationRequest.Username))
 				var nameBytes [32]byte
 				copy(nameBytes[:], registationRequest.Username)
-				err = txbuilder.SendTransaction(index, "register", nameBytes)
+				_, err = txbuilder.SendTransaction(index, "register", nameBytes)
 				if err != nil {
 					logger.LogError(fmt.Sprintf("[backend] error registering wallet %s, %s", account.Address.Hex(), err.Error()))
 				} else {

@@ -3,13 +3,14 @@ package mudhandlers
 import (
 	"fmt"
 
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/hanchon/garnet/internal/indexer/data"
 	"github.com/hanchon/garnet/internal/indexer/data/mudhelpers"
 	"github.com/hanchon/garnet/internal/logger"
 	"go.uber.org/zap"
 )
 
-func HandleSetFieldEvent(event *mudhelpers.StorecoreStoreSetField, db *data.Database) {
+func HandleSetFieldEvent(event *mudhelpers.StorecoreStoreSetField, db *data.Database) data.MudEvent {
 	tableID := mudhelpers.PaddedTableId(event.TableId)
 	logger.LogDebug(
 		fmt.Sprintln(
@@ -29,5 +30,12 @@ func HandleSetFieldEvent(event *mudhelpers.StorecoreStoreSetField, db *data.Data
 
 	key := data.AggregateKey(event.Key)
 
-	db.SetField(table, key, event)
+	mudevent := db.SetField(table, key, event)
+
+	a := ""
+	for _, v := range mudevent.Fields {
+		a = fmt.Sprintf("%s. %s (%s)", a, v.String(), v.Type())
+	}
+	logger.LogDebug(fmt.Sprintf("[indexer] generic table event (%s) %s, key = %s, fields = %s", table.Metadata.TableID, table.Metadata.TableName, hexutil.Encode(key), a))
+	return mudevent
 }

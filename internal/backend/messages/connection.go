@@ -7,6 +7,7 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/hanchon/garnet/internal/backend/cors"
+	"github.com/hanchon/garnet/internal/backend/messages/actions"
 	"github.com/hanchon/garnet/internal/database"
 	"github.com/hanchon/garnet/internal/indexer/data"
 	"github.com/hanchon/garnet/internal/logger"
@@ -84,7 +85,7 @@ func (g *GlobalState) BroadcastUpdates() {
 				if g.LastBroadcastTime != timestamp {
 					logger.LogDebug("[backend] database was updated, broadcasting messages...")
 
-					w, ok := g.Database.Worlds[WorldID]
+					w, ok := g.Database.Worlds[actions.WorldID]
 					if !ok {
 						panic("world not found")
 					}
@@ -93,7 +94,7 @@ func (g *GlobalState) BroadcastUpdates() {
 
 					for _, v := range g.WsSockets {
 						if v.Conn != nil {
-							matchData := g.Database.GetBoardStatus(WorldID, v.WalletAddress)
+							matchData := actions.GetBoardStatus(g.Database, actions.WorldID, v.WalletAddress)
 							if matchData != nil {
 								// TODO: save the user and wallet somewhere
 								matchData.PlayerOneUsermane = "user1"

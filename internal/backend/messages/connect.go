@@ -3,6 +3,7 @@ package messages
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/hanchon/garnet/internal/database"
 	"github.com/hanchon/garnet/internal/logger"
@@ -23,7 +24,7 @@ func connectMessage(ws *WebSocketContainer, usersDB *database.InMemoryDatabase, 
 	ws.User = connectMsg.User
 	ws.Authenticated = true
 	ws.WalletID = user.Index
-	ws.WalletAddress = user.Address
+	ws.WalletAddress = strings.ToLower(user.Address)
 
 	logger.LogInfo(fmt.Sprintf("[backend] user connected: %s (%s)", ws.User, ws.WalletAddress))
 	return nil

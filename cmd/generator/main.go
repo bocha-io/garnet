@@ -28,7 +28,7 @@ func main() {
 	time.Sleep(time.Second)
 
 	for i := init; i < end; i++ {
-		err := txbuilder.SendTransaction(i, "creatematch")
+		_, err := txbuilder.SendTransaction(i, "creatematch")
 		if err != nil {
 			log.Panic(err)
 		}

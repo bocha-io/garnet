@@ -295,7 +295,6 @@ func (gs *GameState) UpdateMatches() {
 					temp := []string{}
 					for i := gs.yOffset; i < end; i++ {
 						temp = append(temp, gs.listOfAvailableGamesToRender[i])
-						// fmt.Fprintln(v, gs.listOfAvailableGamesToRender[i])
 					}
 					RenderWelcomeTable(
 						temp,

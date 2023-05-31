@@ -3,9 +3,12 @@ package messages
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/gorilla/websocket"
+	"github.com/hanchon/garnet/internal/backend/messages/actions"
+	"github.com/hanchon/garnet/internal/indexer/data"
 	"github.com/hanchon/garnet/internal/logger"
 	"github.com/hanchon/garnet/internal/txbuilder"
 )
@@ -18,8 +21,6 @@ func removeConnection(ws *WebSocketContainer, g *GlobalState) {
 	ws.Conn.Close()
 	delete(g.WsSockets, ws.User)
 }
-
-const WorldID = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
 
 func (g *GlobalState) WsHandler(ws *WebSocketContainer) {
 	for {
@@ -55,12 +56,12 @@ func (g *GlobalState) WsHandler(ws *WebSocketContainer) {
 
 			g.WsSockets[ws.User] = ws
 
-			w, ok := g.Database.Worlds[WorldID]
+			w, ok := g.Database.Worlds[actions.WorldID]
 			if !ok {
 				panic("world not found")
 			}
 
-			matchData := g.Database.GetBoardStatus(WorldID, ws.WalletAddress)
+			matchData := actions.GetBoardStatus(g.Database, actions.WorldID, ws.WalletAddress)
 			if matchData != nil {
 				// TODO: save the user and wallet somewhere
 				matchData.PlayerOneUsermane = "user1"
@@ -88,50 +89,16 @@ func (g *GlobalState) WsHandler(ws *WebSocketContainer) {
 				}
 			}
 
-		case "placecard":
-			if !ws.Authenticated {
-				return
-			}
-
-			logger.LogDebug("[backend] processing place card request")
-
-			var msg PlaceCard
-			err := json.Unmarshal(p, &msg)
-			if err != nil {
-				logger.LogError(fmt.Sprintf("[backend] error decoding place card message: %s", err))
-				return
-			}
-
-			id, err := hexutil.Decode(msg.CardID)
-			if err != nil {
-				logger.LogDebug(fmt.Sprintf("[backend] error creating transaction to place card: %s", err))
-				return
-			}
-
-			if len(id) != 32 {
-				logger.LogDebug("[backend] error creating transaction to place card: invalid length")
-				return
-			}
-
-			// It must be array instead of slice
-			var idArray [32]byte
-			copy(idArray[:], id)
-
-			err = txbuilder.SendTransaction(ws.WalletID, "placecard", idArray, uint32(msg.X), uint32(msg.Y))
-			if err != nil {
-				// TODO: send response saying that the game could not be created
-				logger.LogDebug(fmt.Sprintf("[backend] error creating transaction to place card: %s", err))
-			}
-
 		case "creatematch":
 			if !ws.Authenticated {
 				return
 			}
-			err = txbuilder.SendTransaction(ws.WalletID, "creatematch")
+			_, err := txbuilder.SendTransaction(ws.WalletID, "creatematch")
 			if err != nil {
 				// TODO: send response saying that the game could not be created
 				logger.LogDebug(fmt.Sprintf("[backend] error creating transaction to creatematch: %s", err))
 			}
+			// g.Database.AddTxSent(txhash.Hex())
 
 		case "joinmatch":
 			if !ws.Authenticated {
@@ -164,12 +131,13 @@ func (g *GlobalState) WsHandler(ws *WebSocketContainer) {
 			var idArray [32]byte
 			copy(idArray[:], id)
 
-			err = txbuilder.SendTransaction(ws.WalletID, "joinmatch", idArray)
+			_, err = txbuilder.SendTransaction(ws.WalletID, "joinmatch", idArray)
 			if err != nil {
 				// TODO: send response saying that the game could not be created
 				logger.LogDebug(fmt.Sprintf("[backend] error creating transaction to join match: %s", err))
 				return
 			}
+			// g.Database.AddTxSent(txhash.Hex())
 
 		case "endturn":
 			if !ws.Authenticated {
@@ -202,82 +170,23 @@ func (g *GlobalState) WsHandler(ws *WebSocketContainer) {
 			var idArray [32]byte
 			copy(idArray[:], id)
 
-			err = txbuilder.SendTransaction(ws.WalletID, "endturn", idArray)
+			txhash, err := txbuilder.SendTransaction(ws.WalletID, "endturn", idArray)
 			if err != nil {
 				// TODO: send response saying that the game could not be created
 				logger.LogDebug(fmt.Sprintf("[backend] error creating transaction to endturn: %s", err))
 				return
 			}
+			g.Database.AddTxSent(data.UnconfirmedTransaction{Txhash: txhash.Hex(), Events: []data.MudEvent{}})
 
 		case "movecard":
-			if !ws.Authenticated {
-				return
-			}
-
-			logger.LogDebug("[backend] processing move card request")
-
-			var msg MoveCard
-			err := json.Unmarshal(p, &msg)
-			if err != nil {
-				logger.LogError(fmt.Sprintf("[backend] error decoding move card message: %s", err))
-				return
-			}
-
-			id, err := hexutil.Decode(msg.CardID)
-			if err != nil {
-				logger.LogDebug(fmt.Sprintf("[backend] error creating transaction to move card: %s", err))
-				return
-			}
-
-			if len(id) != 32 {
-				logger.LogDebug("[backend] error creating transaction to move card: invalid length")
-				return
-			}
-
-			// It must be array instead of slice
-			var idArray [32]byte
-			copy(idArray[:], id)
-
-			err = txbuilder.SendTransaction(ws.WalletID, "movecard", idArray, uint32(msg.X), uint32(msg.Y))
-			if err != nil {
-				// TODO: send response saying that the game could not be created
-				logger.LogDebug(fmt.Sprintf("[backend] error creating transaction to move card: %s", err))
-			}
-
+			actions.MoveHandler(ws.Authenticated, ws.WalletID, ws.WalletAddress, g.Database, p)
+			g.Database.LastUpdate = time.Now()
 		case "attack":
-			if !ws.Authenticated {
-				return
-			}
-
-			logger.LogDebug("[backend] processing attack request")
-
-			var msg Attack
-			err := json.Unmarshal(p, &msg)
-			if err != nil {
-				logger.LogError(fmt.Sprintf("[backend] error decoding attack message: %s", err))
-				return
-			}
-
-			id, err := hexutil.Decode(msg.CardID)
-			if err != nil {
-				logger.LogDebug(fmt.Sprintf("[backend] error creating transaction to attack: %s", err))
-				return
-			}
-
-			if len(id) != 32 {
-				logger.LogDebug("[backend] error creating transaction to attack: invalid length")
-				return
-			}
-
-			// It must be array instead of slice
-			var idArray [32]byte
-			copy(idArray[:], id)
-
-			err = txbuilder.SendTransaction(ws.WalletID, "attack", idArray, uint32(msg.X), uint32(msg.Y))
-			if err != nil {
-				// TODO: send response saying that the game could not be created
-				logger.LogDebug(fmt.Sprintf("[backend] error creating transaction to attack: %s", err))
-			}
+			actions.AttackHandler(ws.Authenticated, ws.WalletID, ws.WalletAddress, g.Database, p)
+			g.Database.LastUpdate = time.Now()
+		case "placecard":
+			actions.PlaceCardHandler(ws.Authenticated, ws.WalletID, ws.WalletAddress, g.Database, p)
+			g.Database.LastUpdate = time.Now()
 		}
 	}
 }
