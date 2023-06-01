@@ -13,37 +13,39 @@ import (
 	"github.com/hanchon/garnet/internal/txbuilder"
 )
 
-func endturnPrediction(db *data.Database, gameID [32]byte, txhash common.Hash) error {
+func endturnPrediction(db *data.Database, gameID [32]byte, txhash common.Hash, msgUUID string) (string, EndTurnResponse, error) {
 	w := db.GetWorld(WorldID)
 	gameIDAsString := hexutil.Encode(gameID[:])
 
 	_, currentPlayer, err := GetCurrentPlayerFromGame(db, w, gameIDAsString)
 	if err != nil {
 		logger.LogError(fmt.Sprintf("[backend] error getting current player  %s, %s", gameIDAsString, err.Error()))
-		return err
+		return "", EndTurnResponse{}, err
 	}
 
 	playerOneField, playerOne, err := GetPlayerOneFromGame(db, w, gameIDAsString)
 	if err != nil {
 		logger.LogError(fmt.Sprintf("[backend] error getting player one  %s, %s", gameIDAsString, err.Error()))
-		return err
+		return "", EndTurnResponse{}, err
 	}
 
-	playerTwoField, _, err := GetPlayerTwoFromGame(db, w, gameIDAsString)
+	playerTwoField, playerTwo, err := GetPlayerTwoFromGame(db, w, gameIDAsString)
 	if err != nil {
 		logger.LogError(fmt.Sprintf("[backend] error getting player two  %s, %s", gameIDAsString, err.Error()))
-		return err
+		return "", EndTurnResponse{}, err
 	}
 
 	currentTurn, err := GetCurrentTurnFromGame(db, w, gameIDAsString)
 	if err != nil {
 		logger.LogError(fmt.Sprintf("[backend] error getting current turn  %s, %s", gameIDAsString, err.Error()))
-		return err
+		return "", EndTurnResponse{}, err
 	}
 
 	newPlayer := playerOneField
+	newPlayerString := playerOne
 	if currentPlayer == playerOne {
 		newPlayer = playerTwoField
+		newPlayerString = playerTwo
 	}
 
 	newMana := currentTurn + 5 + 1
@@ -92,14 +94,14 @@ func endturnPrediction(db *data.Database, gameID [32]byte, txhash common.Hash) e
 	},
 	)
 
-	return nil
+	return gameIDAsString, EndTurnResponse{UUID: msgUUID, MsgType: "endturnresponse", Player: newPlayerString, Mana: newMana, Turn: currentTurn + 1}, nil
 }
 
-func EndturnHandler(authenticated bool, walletID int, walletAddress string, db *data.Database, p []byte) {
+func EndturnHandler(authenticated bool, walletID int, walletAddress string, db *data.Database, p []byte) (string, EndTurnResponse, error) {
 	// TODO: Wallet address is used to validate the action
 	_ = walletAddress
 	if !authenticated {
-		return
+		return "", EndTurnResponse{}, fmt.Errorf("user not authenticated")
 	}
 
 	logger.LogDebug("[backend] processing endturn request")
@@ -108,7 +110,7 @@ func EndturnHandler(authenticated bool, walletID int, walletAddress string, db *
 	err := json.Unmarshal(p, &msg)
 	if err != nil {
 		logger.LogError(fmt.Sprintf("[backend] error decoding endturn message: %s", err))
-		return
+		return "", EndTurnResponse{}, err
 	}
 
 	logger.LogDebug(fmt.Sprintf("[backend] creating endturn tx: %s", msg.MatchID))
@@ -116,15 +118,20 @@ func EndturnHandler(authenticated bool, walletID int, walletAddress string, db *
 	matchID, err := dbconnector.StringToSlice(msg.MatchID)
 	if err != nil {
 		logger.LogDebug(fmt.Sprintf("[backend] error creating transaction to end turn: %s", err))
-		return
+		return "", EndTurnResponse{}, err
 	}
 
 	txhash, err := txbuilder.SendTransaction(walletID, "endturn", matchID)
 	if err != nil {
 		// TODO: send response saying that the game could not be created
 		logger.LogDebug(fmt.Sprintf("[backend] error creating transaction to endturn: %s", err))
-		return
+		return "", EndTurnResponse{}, err
 	}
-	db.AddTxSent(data.UnconfirmedTransaction{Txhash: txhash.Hex(), Events: []data.MudEvent{}})
-	_ = endturnPrediction(db, matchID, txhash)
+
+	gameID, response, err := endturnPrediction(db, matchID, txhash, msg.UUID)
+	if err != nil {
+		logger.LogDebug(fmt.Sprintf("[backend] error prediction end turn: %s", err))
+		return "", EndTurnResponse{}, err
+	}
+	return gameID, response, nil
 }

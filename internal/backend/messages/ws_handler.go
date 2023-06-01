@@ -3,6 +3,7 @@ package messages
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -139,17 +140,68 @@ func (g *GlobalState) WsHandler(ws *WebSocketContainer) {
 			// g.Database.AddTxSent(txhash.Hex())
 
 		case "endturn":
-			actions.EndturnHandler(ws.Authenticated, ws.WalletID, ws.WalletAddress, g.Database, p)
+			gameID, response, err := actions.EndturnHandler(ws.Authenticated, ws.WalletID, ws.WalletAddress, g.Database, p)
+			if err != nil {
+				return
+			}
+			broadcastResponse(g, gameID, response)
 			g.Database.LastUpdate = time.Now()
 		case "movecard":
-			actions.MoveHandler(ws.Authenticated, ws.WalletID, ws.WalletAddress, g.Database, p)
+			gameID, response, err := actions.MoveHandler(ws.Authenticated, ws.WalletID, ws.WalletAddress, g.Database, p)
+			if err != nil {
+				return
+			}
+			broadcastResponse(g, gameID, response)
 			g.Database.LastUpdate = time.Now()
 		case "attack":
-			actions.AttackHandler(ws.Authenticated, ws.WalletID, ws.WalletAddress, g.Database, p)
+			gameID, response, err := actions.AttackHandler(ws.Authenticated, ws.WalletID, ws.WalletAddress, g.Database, p)
+			if err != nil {
+				return
+			}
+			broadcastResponse(g, gameID, response)
 			g.Database.LastUpdate = time.Now()
 		case "placecard":
-			actions.PlaceCardHandler(ws.Authenticated, ws.WalletID, ws.WalletAddress, g.Database, p)
+			gameID, response, err := actions.PlaceCardHandler(ws.Authenticated, ws.WalletID, ws.WalletAddress, g.Database, p)
+			if err != nil {
+				return
+			}
+			broadcastResponse(g, gameID, response)
 			g.Database.LastUpdate = time.Now()
+		}
+	}
+}
+
+func broadcastResponse(g *GlobalState, gameID string, response interface{}) {
+	w := g.Database.GetWorld(actions.WorldID)
+
+	_, playerOne, err := actions.GetPlayerOneFromGame(g.Database, w, gameID)
+	if err != nil {
+		logger.LogError(fmt.Sprintf("[backend] could not find player one in game %s", gameID))
+		return
+	}
+
+	_, playerTwo, err := actions.GetPlayerTwoFromGame(g.Database, w, gameID)
+	if err != nil {
+		logger.LogError(fmt.Sprintf("[backend] could not find player two in game %s", gameID))
+		return
+	}
+
+	for _, v := range g.WsSockets {
+		if strings.Contains(strings.ToLower(playerOne), v.WalletAddress[2:]) {
+			err := v.Conn.WriteJSON(response)
+			if err != nil {
+				logger.LogError(fmt.Sprintf("[backend] error sending update to %s", v.WalletAddress))
+			} else {
+				logger.LogDebug(fmt.Sprintf("[backend] sending update to %s", v.WalletAddress))
+			}
+		}
+		if strings.Contains(strings.ToLower(playerTwo), v.WalletAddress[2:]) {
+			err := v.Conn.WriteJSON(response)
+			if err != nil {
+				logger.LogError(fmt.Sprintf("[backend] error sending update to %s", v.WalletAddress))
+			} else {
+				logger.LogDebug(fmt.Sprintf("[backend] sending update to %s", v.WalletAddress))
+			}
 		}
 	}
 }
