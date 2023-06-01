@@ -80,6 +80,7 @@ func MoveHandler(authenticated bool, walletID int, walletAddress string, db *dat
 	if err != nil {
 		// TODO: send response saying that the game could not be created
 		logger.LogDebug(fmt.Sprintf("[backend] error creating transaction to move card: %s", err))
+		return
 	}
 	_ = movePrediction(db, cardID, &msg, txhash)
 }

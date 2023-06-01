@@ -120,6 +120,7 @@ func PlaceCardHandler(authenticated bool, walletID int, walletAddress string, db
 	if err != nil {
 		// TODO: send response saying that the game could not be created
 		logger.LogDebug(fmt.Sprintf("[backend] error creating transaction to place card: %s", err))
+		return
 	}
 
 	// TODO: maybe if this fails stop accepting transactions until a new block is created

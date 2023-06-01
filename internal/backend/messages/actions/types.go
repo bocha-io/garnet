@@ -20,3 +20,8 @@ type Attack struct {
 type MoveCard struct {
 	BasicAction
 }
+
+type EndTurn struct {
+	MsgType string `json:"msgtype"`
+	MatchID string `json:"id"`
+}

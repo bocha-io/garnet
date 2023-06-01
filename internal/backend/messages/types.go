@@ -17,6 +17,7 @@ type JoinMatch struct {
 	MatchID string `json:"id"`
 }
 
+// TODO: remove this
 type EndTurn struct {
 	MsgType string `json:"msgtype"`
 	MatchID string `json:"id"`

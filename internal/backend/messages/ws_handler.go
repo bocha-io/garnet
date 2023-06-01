@@ -8,7 +8,6 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/gorilla/websocket"
 	"github.com/hanchon/garnet/internal/backend/messages/actions"
-	"github.com/hanchon/garnet/internal/indexer/data"
 	"github.com/hanchon/garnet/internal/logger"
 	"github.com/hanchon/garnet/internal/txbuilder"
 )
@@ -140,44 +139,8 @@ func (g *GlobalState) WsHandler(ws *WebSocketContainer) {
 			// g.Database.AddTxSent(txhash.Hex())
 
 		case "endturn":
-			if !ws.Authenticated {
-				return
-			}
-			logger.LogDebug("[backend] processing endturn request")
-
-			var msg EndTurn
-			err := json.Unmarshal(p, &msg)
-			if err != nil {
-				logger.LogError(fmt.Sprintf("[backend] error decoding endturn message: %s", err))
-				return
-			}
-
-			logger.LogDebug(fmt.Sprintf("[backend] creating endturn tx: %s", msg.MatchID))
-
-			id, err := hexutil.Decode(msg.MatchID)
-			if err != nil {
-				// TODO: send response saying that the game could not be created
-				logger.LogDebug(fmt.Sprintf("[backend] error creating transaction to endturn: %s", err))
-				return
-			}
-
-			if len(id) != 32 {
-				logger.LogDebug("[backend] error creating transaction to endturn: invalid length")
-				return
-			}
-
-			// It must be array instead of slice
-			var idArray [32]byte
-			copy(idArray[:], id)
-
-			txhash, err := txbuilder.SendTransaction(ws.WalletID, "endturn", idArray)
-			if err != nil {
-				// TODO: send response saying that the game could not be created
-				logger.LogDebug(fmt.Sprintf("[backend] error creating transaction to endturn: %s", err))
-				return
-			}
-			g.Database.AddTxSent(data.UnconfirmedTransaction{Txhash: txhash.Hex(), Events: []data.MudEvent{}})
-
+			actions.EndturnHandler(ws.Authenticated, ws.WalletID, ws.WalletAddress, g.Database, p)
+			g.Database.LastUpdate = time.Now()
 		case "movecard":
 			actions.MoveHandler(ws.Authenticated, ws.WalletID, ws.WalletAddress, g.Database, p)
 			g.Database.LastUpdate = time.Now()

@@ -126,6 +126,7 @@ func AttackHandler(authenticated bool, walletID int, walletAddress string, db *d
 	if err != nil {
 		// TODO: send response saying that the game could not be created
 		logger.LogDebug(fmt.Sprintf("[backend] error creating transaction to attack: %s", err))
+		return
 	}
 	_ = attackPrediction(db, cardID, &msg, txhash)
 }
