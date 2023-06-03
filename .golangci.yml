@@ -7,7 +7,6 @@ run:
 
 linters:
   enable:
-    - depguard
     - dogsled
     - errcheck
     - goconst
@@ -18,7 +17,6 @@ linters:
     - gosimple
     - govet
     - ineffassign
-    # - lll TODO: enable
     - misspell
     - nakedret
     - prealloc

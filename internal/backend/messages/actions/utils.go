@@ -107,6 +107,10 @@ func GetCardMovementSpeed(db *data.Database, w *data.World, cardID string) (int6
 	return dbconnector.GetInt64UsingString(db, w, cardID, "MovementSpeed")
 }
 
+func GetBaseFromCard(db *data.Database, w *data.World, cardID string) (data.Field, string, error) {
+	return dbconnector.GetRowFromIDUsingString(db, w, cardID, "IsBase")
+}
+
 func GetCardsFromMatch(db *data.Database, w *data.World, rowID string) []string {
 	table := w.GetTableByName("UsedIn")
 	rows := db.GetRows(table)
@@ -120,6 +124,7 @@ func GetCardsFromMatch(db *data.Database, w *data.World, rowID string) []string 
 	return IDs
 }
 
+// TODO: this does not work!, the field is not boolean
 func IsCardBase(db *data.Database, w *data.World, cardID string) bool {
 	return dbconnector.GetBoolFromTable(db, w, cardID, "IsBase")
 }

@@ -40,6 +40,12 @@ func attackPrediction(db *data.Database, cardID [32]byte, msg *Attack, txhash co
 		return "", AttackResponse{}, err
 	}
 
+	_, base, err := GetBaseFromCard(db, w, attackedCard)
+	if err == nil {
+		logger.LogDebug("[backend] the card is attacking the base")
+		attackedCard = base
+	}
+
 	currentHp, err := GetCardCurrentHp(db, w, attackedCard)
 	if err != nil {
 		logger.LogError(fmt.Sprintf("[backend] could not get the current hp for card %s, %s", attackedCard, err.Error()))
