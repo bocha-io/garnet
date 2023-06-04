@@ -92,11 +92,11 @@ func NewGameState(ui *gocui.Gui, username string, password string) *GameState {
 	}
 }
 
-func InitWsConnection(gameState *GameState) *websocket.Conn {
-	u := url.URL{Scheme: "ws", Host: ":6666", Path: "/ws"}
+func InitWsConnection(scheme string, host string, gameState *GameState) *websocket.Conn {
+	u := url.URL{Scheme: scheme, Host: host, Path: "/ws"}
 	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
-		panic("could not connect")
+		panic(fmt.Sprintf("could not connect: %s", err))
 	}
 
 	// Receive messages

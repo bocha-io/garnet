@@ -9,8 +9,14 @@ run:
 run-p1:
 	@go build -o ./build/game ./cmd/game && ./build/game user1 password1
 
+run-p1-prod:
+	 @go build -o ./build/game ./cmd/game && ./build/game user1 password1 true
+
 run-p2:
 	@go build -o ./build/game ./cmd/game && ./build/game user2 password2
+
+run-p2-prod:
+	 @go build -o ./build/game ./cmd/game && ./build/game user2 password2 true
 
 run-indexer:
 	@go build -o ./build/indexer ./cmd/indexer && ./build/indexer

@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	if len(os.Args) != 3 {
+	if len(os.Args) < 3 {
 		fmt.Printf("ERROR: username and password missing \nTo run the game execute: make run user1 password1")
 		return
 	}
@@ -43,7 +43,13 @@ func main() {
 		log.Panicln(err)
 	}
 
-	state.Ws = game.InitWsConnection(state)
+	if len(os.Args) == 4 {
+		// Production
+		state.Ws = game.InitWsConnection("wss", "garnet.bocha.io", state)
+	} else {
+		state.Ws = game.InitWsConnection("ws", ":6666", state)
+	}
+
 	msg := messages.ConnectMessage{
 		MsgType:  "connect",
 		User:     state.Username,
