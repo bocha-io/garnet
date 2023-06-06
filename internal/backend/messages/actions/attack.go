@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/big"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -12,6 +13,61 @@ import (
 	"github.com/hanchon/garnet/internal/logger"
 	"github.com/hanchon/garnet/internal/txbuilder"
 )
+
+func validateAttack(db *data.Database, cardID [32]byte, msg *Attack, walletAddress string) (bool, error) {
+	if len(walletAddress) > 2 {
+		walletAddress = walletAddress[2:]
+	}
+	w := db.GetWorld(WorldID)
+
+	gameKey, err := commonValidation(db, w, cardID, walletAddress, attackManaCost)
+	if err != nil {
+		return false, err
+	}
+
+	actionReady := IsCardReady(db, w, hexutil.Encode(cardID[:]))
+	if !actionReady {
+		logger.LogError(fmt.Sprintf("[backend] card already attacked: %s", hexutil.Encode(cardID[:])))
+		return false, nil
+	}
+
+	attackedKey, err := GetCardInPosition(db, w, gameKey, msg.X, msg.Y)
+	if err != nil {
+		logger.LogError(fmt.Sprintf("[backend] there is no unit at position (%d, %d) game %s", msg.X, msg.Y, gameKey))
+		return false, err
+	}
+
+	_, attackedOwner, err := GetCardOwnerWithString(db, w, attackedKey)
+	if err != nil {
+		logger.LogError("[backend] could not find the onwer of the attacked card")
+		return false, err
+	}
+
+	if strings.Contains(attackedOwner, walletAddress) {
+		logger.LogError("[backend] trying to attack its own card")
+		return false, err
+	}
+
+	if msg.X < 0 || msg.X > 9 || msg.Y < 0 || msg.Y > 10 {
+		logger.LogError("[backend] invalid position, is out of the map")
+		return false, err
+	}
+
+	// Range
+	position, err := GetCardPosition(db, w, hexutil.Encode(cardID[:]))
+	if err != nil {
+		logger.LogError("[backend] could not get the card position")
+		return false, err
+	}
+
+	if !(((position.X == msg.X) && (position.Y == msg.Y-1 || position.Y == msg.Y+1)) ||
+		((position.Y == msg.Y) && (position.X == msg.X-1 || position.X == msg.X+1))) {
+		logger.LogError("[backend] attaking out of range")
+		return false, err
+	}
+
+	return true, nil
+}
 
 func attackPrediction(db *data.Database, cardID [32]byte, msg *Attack, txhash common.Hash) (string, AttackResponse, error) {
 	w := db.GetWorld(WorldID)
@@ -127,7 +183,6 @@ func attackPrediction(db *data.Database, cardID [32]byte, msg *Attack, txhash co
 
 func AttackHandler(authenticated bool, walletID int, walletAddress string, db *data.Database, p []byte) (string, AttackResponse, error) {
 	// TODO: Wallet address is used to validate the action
-	_ = walletAddress
 	if !authenticated {
 		return "", AttackResponse{}, fmt.Errorf("user not authenticated")
 	}
@@ -144,6 +199,11 @@ func AttackHandler(authenticated bool, walletID int, walletAddress string, db *d
 	cardID, err := dbconnector.StringToSlice(msg.CardID)
 	if err != nil {
 		logger.LogDebug(fmt.Sprintf("[backend] error creating transaction to attack a card: %s", err))
+		return "", AttackResponse{}, nil
+	}
+
+	valid, err := validateAttack(db, cardID, &msg, walletAddress)
+	if err != nil || !valid {
 		return "", AttackResponse{}, nil
 	}
 

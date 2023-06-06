@@ -14,6 +14,56 @@ import (
 	"github.com/hanchon/garnet/internal/txbuilder"
 )
 
+func validatePlaceCard(db *data.Database, cardID [32]byte, msg *PlaceCard, walletAddress string) (bool, error) {
+	if len(walletAddress) > 2 {
+		walletAddress = walletAddress[2:]
+	}
+	w := db.GetWorld(WorldID)
+
+	gameKey, err := commonValidation(db, w, cardID, walletAddress, summonManaCost)
+	if err != nil {
+		return false, err
+	}
+
+	_, err = GetCardInPosition(db, w, gameKey, msg.X, msg.Y)
+	// The space must be empty
+	if err == nil {
+		logger.LogError(fmt.Sprintf("[backend] there is a unit at position (%d, %d) game %s", msg.X, msg.Y, gameKey))
+		return false, fmt.Errorf("invalid place position, there is a unit there")
+	}
+
+	position, err := GetCardPosition(db, w, hexutil.Encode(cardID[:]))
+	if err != nil {
+		logger.LogError("[backend] could not get the card position")
+		return false, err
+	}
+
+	if position.X != -2 || position.Y != -2 {
+		logger.LogError("[backend] card was already placed")
+		return false, err
+	}
+
+	_, playerOne, err := GetPlayerOneFromGame(db, w, gameKey)
+	if err != nil {
+		logger.LogError("[backend] could not get the player one")
+		return false, err
+	}
+
+	var minY int64 = 8
+	var maxY int64 = 9
+	if strings.Contains(playerOne, walletAddress) {
+		minY = 0
+		maxY = 1
+	}
+
+	if msg.X < 0 || msg.X > 9 || msg.Y < minY || msg.Y > maxY {
+		logger.LogError("[backend] invalid place position")
+		return false, fmt.Errorf("invalid place position")
+	}
+
+	return true, nil
+}
+
 func placeCardPrediction(db *data.Database, cardID [32]byte, msg *PlaceCard, txhash common.Hash, walletAddress string) (string, PlaceCardResponse, error) {
 	w := db.GetWorld(WorldID)
 	gameField, gameKey, err := GetGameFromCard(db, w, cardID)
@@ -127,7 +177,11 @@ func PlaceCardHandler(authenticated bool, walletID int, walletAddress string, db
 		return "", PlaceCardResponse{}, nil
 	}
 
-	// TODO: validate place card action before sending the transaction
+	valid, err := validatePlaceCard(db, cardID, &msg, walletAddress)
+	if err != nil || !valid {
+		return "", PlaceCardResponse{}, nil
+	}
+
 	txhash, err := txbuilder.SendTransaction(walletID, "placecard", cardID, uint32(msg.X), uint32(msg.Y))
 	if err != nil {
 		// TODO: send response saying that the game could not be created

@@ -3,6 +3,7 @@ package actions
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -12,6 +13,58 @@ import (
 	"github.com/hanchon/garnet/internal/logger"
 	"github.com/hanchon/garnet/internal/txbuilder"
 )
+
+func validateMove(db *data.Database, cardID [32]byte, msg *MoveCard, walletAddress string) (bool, error) {
+	if len(walletAddress) > 2 {
+		walletAddress = walletAddress[2:]
+	}
+	w := db.GetWorld(WorldID)
+
+	gameKey, err := commonValidation(db, w, cardID, walletAddress, moveManaCost)
+	if err != nil {
+		return false, err
+	}
+
+	_, err = GetCardInPosition(db, w, gameKey, msg.X, msg.Y)
+	// The space must be empty
+	if err == nil {
+		logger.LogError(fmt.Sprintf("[backend] there is a unit at position (%d, %d) game %s", msg.X, msg.Y, gameKey))
+		return false, nil
+	}
+
+	actionReady := IsCardReady(db, w, hexutil.Encode(cardID[:]))
+	if !actionReady {
+		logger.LogError(fmt.Sprintf("[backend] card already attacked: %s", hexutil.Encode(cardID[:])))
+		return false, nil
+	}
+
+	// Range
+	position, err := GetCardPosition(db, w, hexutil.Encode(cardID[:]))
+	if err != nil {
+		logger.LogError("[backend] could not get the card position")
+		return false, err
+	}
+
+	if position.X < 0 || position.X > 9 {
+		logger.LogError("[backend] the card was not placed")
+		return false, nil
+	}
+
+	movementSpeed, err := GetCardMovementSpeed(db, w, hexutil.Encode(cardID[:]))
+	if err != nil {
+		logger.LogError("[backend] could not get the card mov speed")
+		return false, err
+	}
+
+	deltaX := math.Abs(float64(position.X - msg.X))
+	deltaY := math.Abs(float64(position.Y - msg.Y))
+	if deltaX+deltaY > float64(movementSpeed) {
+		logger.LogError("[backend] trying to move too far away")
+		return false, nil
+	}
+
+	return true, nil
+}
 
 func movePrediction(db *data.Database, cardID [32]byte, msg *MoveCard, txhash common.Hash) (string, MoveCardResponse, error) {
 	w := db.GetWorld(WorldID)
@@ -90,6 +143,11 @@ func MoveHandler(authenticated bool, walletID int, walletAddress string, db *dat
 	cardID, err := dbconnector.StringToSlice(msg.CardID)
 	if err != nil {
 		logger.LogDebug(fmt.Sprintf("[backend] error creating transaction to move card: %s", err))
+		return "", MoveCardResponse{}, nil
+	}
+
+	valid, err := validateMove(db, cardID, &msg, walletAddress)
+	if err != nil || !valid {
 		return "", MoveCardResponse{}, nil
 	}
 

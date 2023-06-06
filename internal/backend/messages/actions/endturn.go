@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/big"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -12,6 +13,26 @@ import (
 	"github.com/hanchon/garnet/internal/logger"
 	"github.com/hanchon/garnet/internal/txbuilder"
 )
+
+func validateEndTurn(db *data.Database, gameID [32]byte, walletAddress string) (bool, error) {
+	if len(walletAddress) > 2 {
+		walletAddress = walletAddress[2:]
+	}
+	w := db.GetWorld(WorldID)
+	gameKey := hexutil.Encode(gameID[:])
+
+	_, currentPlayer, err := GetCurrentPlayerFromGame(db, w, gameKey)
+	if err != nil {
+		logger.LogError(fmt.Sprintf("[backend] failed to get the current player %s: %s", gameKey, err.Error()))
+		return false, err
+	}
+
+	if !strings.Contains(currentPlayer, walletAddress) {
+		logger.LogError(fmt.Sprintf("[backend] current player different from player (%s, %s)", currentPlayer, walletAddress))
+		return false, fmt.Errorf("not player turn")
+	}
+	return true, nil
+}
 
 func endturnPrediction(db *data.Database, gameID [32]byte, txhash common.Hash, msgUUID string) (string, EndTurnResponse, error) {
 	w := db.GetWorld(WorldID)
@@ -118,6 +139,12 @@ func EndturnHandler(authenticated bool, walletID int, walletAddress string, db *
 	matchID, err := dbconnector.StringToSlice(msg.MatchID)
 	if err != nil {
 		logger.LogDebug(fmt.Sprintf("[backend] error creating transaction to end turn: %s", err))
+		return "", EndTurnResponse{}, err
+	}
+
+	valid, err := validateEndTurn(db, matchID, walletAddress)
+	if err != nil || !valid {
+		logger.LogDebug(fmt.Sprintf("[backend] error invalid end turn: %s", err))
 		return "", EndTurnResponse{}, err
 	}
 

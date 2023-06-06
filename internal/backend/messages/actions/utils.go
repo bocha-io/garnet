@@ -18,6 +18,10 @@ func GetCardOwner(db *data.Database, w *data.World, cardID [32]byte) (data.Field
 	return dbconnector.GetRowFromIDUsingBytes(db, w, cardID, "OwnedBy")
 }
 
+func GetCardOwnerWithString(db *data.Database, w *data.World, cardID string) (data.Field, string, error) {
+	return dbconnector.GetRowFromIDUsingString(db, w, cardID, "OwnedBy")
+}
+
 func GetCardOwnerUsingString(db *data.Database, w *data.World, cardID string) (data.Field, string, error) {
 	return dbconnector.GetRowFromIDUsingString(db, w, cardID, "OwnedBy")
 }
