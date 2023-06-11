@@ -135,10 +135,17 @@ contract WhirlwindAxeSystem is System {
                         continue;
                     }
                     attackedKey = isBase;
+                    if (OwnedBy.get(attackedKey) == playerKey) {
+                        // Friendly fire
+                        continue;
+                    }
                     baseAlreadyAttacked = true;
                 }
 
-                require(OwnedBy.get(attackedKey) != playerKey, "friendy fire is not enabled");
+                if (OwnedBy.get(attackedKey) == playerKey) {
+                    // Friendly fire
+                    continue;
+                }
 
                 bytes32 cover = LibCover.getCoverCard(gameKeyGenerated, playerKey, cards[i].x, cards[i].y);
                 if (cover != bytes32(0)) {
