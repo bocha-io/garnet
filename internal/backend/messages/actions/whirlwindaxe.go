@@ -152,10 +152,10 @@ func whirlwindAxePrediction(db *data.Database, cardID [32]byte, msg *WhirlwindAx
 			}
 
 			if attackedCard == cover {
-				if coverHp < attackDmg {
+				if currentHp < attackDmg {
 					coverHp = 0
 				} else {
-					coverHp = coverHp - attackDmg
+					coverHp = currentHp - attackDmg
 				}
 				coverAddress = attackedCard
 			} else if currentHp <= attackDmg {
