@@ -102,11 +102,11 @@ func piercingShotPrediction(db *data.Database, cardID [32]byte, msg *PiercingSho
 
 	// Attack
 	pos := []data.Position{{X: position.X + 1, Y: position.Y}, {X: position.X + 2, Y: position.Y}, {X: position.X + 3, Y: position.Y}}
-	if position.X == msg.X-1 { //nolint:gocritic
+	if position.X == msg.X+1 { //nolint:gocritic
 		pos = []data.Position{{X: position.X - 1, Y: position.Y}, {X: position.X - 2, Y: position.Y}, {X: position.X - 3, Y: position.Y}}
-	} else if position.Y == msg.Y+1 {
-		pos = []data.Position{{X: position.X, Y: position.Y + 1}, {X: position.X, Y: position.Y + 2}, {X: position.X, Y: position.Y + 3}}
 	} else if position.Y == msg.Y-1 {
+		pos = []data.Position{{X: position.X, Y: position.Y + 1}, {X: position.X, Y: position.Y + 2}, {X: position.X, Y: position.Y + 3}}
+	} else if position.Y == msg.Y+1 {
 		pos = []data.Position{{X: position.X, Y: position.Y - 1}, {X: position.X, Y: position.Y - 2}, {X: position.X, Y: position.Y - 3}}
 	}
 
