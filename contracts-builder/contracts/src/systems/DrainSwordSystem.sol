@@ -7,6 +7,7 @@ import {getKeysWithValue} from "@latticexyz/world/src/modules/keyswithvalue/getK
 // Utils
 import {addressToEntityKey} from "../addressToEntityKey.sol";
 import {CardTypes} from "../codegen/Types.sol";
+import {AbilityTypes} from "../codegen/Types.sol";
 // Tables
 import {Card} from "../codegen/tables/Card.sol";
 import {OwnedBy} from "../codegen/tables/OwnedBy.sol";
@@ -15,11 +16,13 @@ import {UsedIn} from "../codegen/tables/UsedIn.sol";
 import {CurrentPlayer} from "../codegen/tables/CurrentPlayer.sol";
 import {PlayerOne} from "../codegen/tables/PlayerOne.sol";
 import {UnitType} from "../codegen/tables/UnitType.sol";
+import {AbilityType} from "../codegen/tables/AbilityType.sol";
 import {Position, PositionTableId} from "../codegen/tables/Position.sol";
 import {PlacedCards, PlacedCardsData} from "../codegen/tables/PlacedCards.sol";
 import {MapConfig, MapConfigData} from "../codegen/tables/MapConfig.sol";
 import {CurrentMana} from "../codegen/tables/CurrentMana.sol";
 import {CurrentHp} from "../codegen/tables/CurrentHp.sol";
+import {MaxHp} from "../codegen/tables/MaxHp.sol";
 import {AttackDamage} from "../codegen/tables/AttackDamage.sol";
 import {ActionReady} from "../codegen/tables/ActionReady.sol";
 import {Match} from "../codegen/tables/Match.sol";
@@ -28,12 +31,13 @@ import {PlayerTwo} from "../codegen/tables/PlayerTwo.sol";
 
 import {LibCover} from "../libs/LibCover.sol";
 
-contract AttackSystem is System {
+contract DrainSwordSystem is System {
     function validate(bytes32 cardKey, bytes32 gameKey, bytes32 playerKey) private view {
         require(Card.get(cardKey), "card does not exist");
         require(ActionReady.get(cardKey) == true, "card already attacked");
         require(OwnedBy.get(cardKey) == playerKey, "the sender is not the owner of the card");
         require(CurrentPlayer.get(gameKey) == playerKey, "it is not the player turn");
+        require(AbilityType.get(cardKey) == AbilityTypes.DrainSword, "card does not have the ability");
     }
 
     function limits(bytes32 cardKey, bytes32 gameKeyGenerated, bytes32 playerKey, uint32 newX, uint32 newY)
@@ -61,10 +65,10 @@ contract AttackSystem is System {
         require(newY <= mapConfig.height && newY >= 0, "invalid y");
 
         // Mana
-        require(CurrentMana.get(gameKeyGenerated) >= 2, "no enough mana");
+        require(CurrentMana.get(gameKeyGenerated) >= 4, "no enough mana");
     }
 
-    function attack(bytes32 cardKey, uint32 newX, uint32 newY) public {
+    function drainsword(bytes32 cardKey, uint32 newX, uint32 newY) public {
         bytes32 gameKeyGenerated = UsedIn.get(cardKey);
         bytes32 playerKey = addressToEntityKey(_msgSender());
         require(gameKeyGenerated != 0, "game id is incorrect");
@@ -92,9 +96,11 @@ contract AttackSystem is System {
             attackedKey = cover;
         }
 
+        uint32 attackerHp = CurrentHp.get(cardKey);
+        require(attackerHp > 0, "the attacker card has not hp");
+
         uint32 hp = CurrentHp.get(attackedKey);
-        require(keysAtPos.length > 0, "there is no unit in that position");
-        uint32 attackDmg = AttackDamage.get(cardKey);
+        uint32 attackDmg = 2;
 
         if (hp <= attackDmg) {
             // DEAD
@@ -111,8 +117,15 @@ contract AttackSystem is System {
             CurrentHp.set(attackedKey, hp - attackDmg);
         }
 
+        uint32 maxHp = MaxHp.get(cardKey);
+        if (attackerHp <= maxHp - 2) {
+            CurrentHp.set(cardKey, attackerHp + 2);
+        } else {
+            CurrentHp.set(cardKey, maxHp);
+        }
+
         ActionReady.set(cardKey, false);
         // Update game status
-        CurrentMana.set(gameKeyGenerated, CurrentMana.get(gameKeyGenerated) - 2);
+        CurrentMana.set(gameKeyGenerated, CurrentMana.get(gameKeyGenerated) - 4);
     }
 }

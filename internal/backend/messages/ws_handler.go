@@ -167,6 +167,55 @@ func (g *GlobalState) WsHandler(ws *WebSocketContainer) {
 			}
 			broadcastResponse(g, gameID, response)
 			g.Database.LastUpdate = time.Now()
+
+		case "meteor":
+			gameID, response, err := actions.MeteorHandler(ws.Authenticated, ws.WalletID, ws.WalletAddress, g.Database, p)
+			if err != nil {
+				return
+			}
+			broadcastResponse(g, gameID, response)
+			g.Database.LastUpdate = time.Now()
+
+		case "drainsword":
+			gameID, response, err := actions.DrainSwordHandler(ws.Authenticated, ws.WalletID, ws.WalletAddress, g.Database, p)
+			if err != nil {
+				return
+			}
+			broadcastResponse(g, gameID, response)
+			g.Database.LastUpdate = time.Now()
+
+		case "piercingshot":
+			gameID, response, err := actions.PiercingShotHandler(ws.Authenticated, ws.WalletID, ws.WalletAddress, g.Database, p)
+			if err != nil {
+				return
+			}
+			broadcastResponse(g, gameID, response)
+			g.Database.LastUpdate = time.Now()
+
+		case "whirlwindaxe":
+			gameID, response, err := actions.WhirldwindAxeHandler(ws.Authenticated, ws.WalletID, ws.WalletAddress, g.Database, p)
+			if err != nil {
+				return
+			}
+			broadcastResponse(g, gameID, response)
+			g.Database.LastUpdate = time.Now()
+
+		case "sidestep":
+			gameID, response, err := actions.SidestepHandler(ws.Authenticated, ws.WalletID, ws.WalletAddress, g.Database, p)
+			if err != nil {
+				return
+			}
+			broadcastResponse(g, gameID, response)
+			g.Database.LastUpdate = time.Now()
+
+		case "cover":
+			gameID, response, err := actions.CoverHandler(ws.Authenticated, ws.WalletID, ws.WalletAddress, g.Database, p)
+			if err != nil {
+				return
+			}
+			broadcastResponse(g, gameID, response)
+			g.Database.LastUpdate = time.Now()
+
 		}
 	}
 }

@@ -28,17 +28,63 @@ type Attack struct {
 	BasicAction
 }
 
+type Meteor struct {
+	BasicAction
+}
+
+type Cover struct {
+	BasicAction
+}
+
+type PiercingShot struct {
+	BasicAction
+}
+
+type Sidestep struct {
+	BasicAction
+}
+
+type DrainSword struct {
+	BasicAction
+}
+
+type WhirlwindAxe struct {
+	BasicAction
+}
+
+type AffectedCard struct {
+	CardIDAttacked string `json:"cardidattacked"`
+	PreviousHp     int64  `json:"previoushp"`
+	CurrentHp      int64  `json:"currenthp"`
+}
+
+type MovedCard struct {
+	CardID string `json:"id"`
+	X      int64  `json:"x"`
+	Y      int64  `json:"y"`
+}
+
 type AttackResponse struct {
+	CardIDAttacked string `json:"cardidattacked"`
+	PreviousHp     int64  `json:"previoushp"`
+	CurrentHp      int64  `json:"currenthp"`
+	X              int64  `json:"x"`
+	Y              int64  `json:"y"`
 	UUID           string `json:"uuid"`
 	MsgType        string `json:"msgtype"`
 	CardIDAttacker string `json:"cardidattacker"`
-	CardIDAttacked string `json:"cardidattacked"`
-	X              int64  `json:"x"`
-	Y              int64  `json:"y"`
-	PreviousHp     int64  `json:"previoushp"`
-	CurrentHp      int64  `json:"currenthp"`
 	Player         string `json:"player"`
 	LeftOverMana   int64  `json:"leftovermana"`
+}
+
+type SkillResponse struct {
+	AffectedCards  []AffectedCard `json:"affectedcards"`
+	MovedCards     []MovedCard    `json:"movedcards"`
+	UUID           string         `json:"uuid"`
+	MsgType        string         `json:"msgtype"`
+	CardIDAttacker string         `json:"cardidattacker"`
+	Player         string         `json:"player"`
+	LeftOverMana   int64          `json:"leftovermana"`
 }
 
 type MoveCard struct {

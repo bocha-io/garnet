@@ -10,6 +10,14 @@ type Position struct {
 	Y int64 `json:"y"`
 }
 
+type CoverPosition struct {
+	Card    string `json:"card"`
+	Player  string `json:"player"`
+	Card2   string `json:"card2"`
+	Player2 string `json:"player2"`
+	Raw     []Field
+}
+
 type MatchData struct {
 	MatchID           string `json:"matchid"`
 	PlayerOne         string `json:"playerone"`

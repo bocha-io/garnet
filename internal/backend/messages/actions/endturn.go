@@ -100,6 +100,24 @@ func endturnPrediction(db *data.Database, gameID [32]byte, txhash common.Hash, m
 
 	cards := GetCardsFromMatch(db, w, gameIDAsString)
 	for _, v := range cards {
+		if cardAbilityType, err := GetCardAbilityType(db, w, v); err != nil {
+			// Store sidestep initial position
+			if cardAbilityType == abilitySidestep {
+				if pos, err := GetCardPosition(db, w, v); err != nil {
+					events = append(events, data.MudEvent{
+						Table: "SidestepInitialPosition",
+						Key:   v,
+						Fields: []data.Field{
+							{Key: "placed", Data: data.BoolField{Data: true}},
+							{Key: "x", Data: data.UintField{Data: *big.NewInt(pos.X)}},
+							{Key: "y", Data: data.UintField{Data: *big.NewInt(pos.Y)}},
+						},
+					})
+				}
+			}
+		}
+
+		// Reset all actions ready entries
 		events = append(events, data.MudEvent{
 			Table: "ActionReady",
 			Key:   v,
@@ -107,6 +125,25 @@ func endturnPrediction(db *data.Database, gameID [32]byte, txhash common.Hash, m
 				{Key: "value", Data: data.BoolField{Data: true}},
 			},
 		})
+	}
+
+	// Update cover
+	if cover, err := GetCoverPosition(db, w, gameIDAsString); err == nil {
+		newFields := cover.Raw
+		if cover.Player != emptyString && cover.Player != currentPlayer {
+
+			newFields[0] = data.Field{Key: "coverOneCard", Data: data.NewBytesField(EmptyBytes())}
+			newFields[1] = data.Field{Key: "coverOnePlayer", Data: data.NewBytesField(EmptyBytes())}
+		} else if cover.Player2 != emptyString && cover.Player2 != currentPlayer {
+			newFields[2] = data.Field{Key: "coverTowCard", Data: data.NewBytesField(EmptyBytes())}
+			newFields[3] = data.Field{Key: "coverTowPlayer", Data: data.NewBytesField(EmptyBytes())}
+		}
+		events = append(events, data.MudEvent{
+			Table:  "CoverPosition",
+			Key:    gameIDAsString,
+			Fields: newFields,
+		},
+		)
 	}
 
 	db.AddTxSent(data.UnconfirmedTransaction{

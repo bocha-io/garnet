@@ -32,9 +32,11 @@ export interface IWorldInterface extends utils.Interface {
   functions: {
     "attack(bytes32,uint32,uint32)": FunctionFragment;
     "call(bytes16,bytes16,bytes)": FunctionFragment;
+    "cover(bytes32,uint32,uint32)": FunctionFragment;
     "creatematch()": FunctionFragment;
     "deleteRecord(bytes32,bytes32[])": FunctionFragment;
     "deleteRecord(bytes16,bytes16,bytes32[])": FunctionFragment;
+    "drainsword(bytes32,uint32,uint32)": FunctionFragment;
     "emitEphemeralRecord(bytes16,bytes16,bytes32[],bytes)": FunctionFragment;
     "emitEphemeralRecord(bytes32,bytes32[],bytes)": FunctionFragment;
     "endturn(bytes32)": FunctionFragment;
@@ -50,7 +52,9 @@ export interface IWorldInterface extends utils.Interface {
     "installRootModule(address,bytes)": FunctionFragment;
     "isStore()": FunctionFragment;
     "joinmatch(bytes32)": FunctionFragment;
+    "meteor(bytes32,uint32,uint32)": FunctionFragment;
     "movecard(bytes32,uint32,uint32)": FunctionFragment;
+    "piercingshot(bytes32,uint32,uint32)": FunctionFragment;
     "placecard(bytes32,uint32,uint32)": FunctionFragment;
     "popFromField(bytes16,bytes16,bytes32[],uint8,uint256)": FunctionFragment;
     "popFromField(bytes32,bytes32[],uint8,uint256)": FunctionFragment;
@@ -74,18 +78,22 @@ export interface IWorldInterface extends utils.Interface {
     "setMetadata(bytes32,string,string[])": FunctionFragment;
     "setRecord(bytes16,bytes16,bytes32[],bytes)": FunctionFragment;
     "setRecord(bytes32,bytes32[],bytes)": FunctionFragment;
+    "sidestep(bytes32,uint32,uint32)": FunctionFragment;
     "updateCards(bytes32)": FunctionFragment;
     "updateInField(bytes32,bytes32[],uint8,uint256,bytes)": FunctionFragment;
     "updateInField(bytes16,bytes16,bytes32[],uint8,uint256,bytes)": FunctionFragment;
+    "whirlwindaxe(bytes32)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "attack"
       | "call"
+      | "cover"
       | "creatematch"
       | "deleteRecord(bytes32,bytes32[])"
       | "deleteRecord(bytes16,bytes16,bytes32[])"
+      | "drainsword"
       | "emitEphemeralRecord(bytes16,bytes16,bytes32[],bytes)"
       | "emitEphemeralRecord(bytes32,bytes32[],bytes)"
       | "endturn"
@@ -101,7 +109,9 @@ export interface IWorldInterface extends utils.Interface {
       | "installRootModule"
       | "isStore"
       | "joinmatch"
+      | "meteor"
       | "movecard"
+      | "piercingshot"
       | "placecard"
       | "popFromField(bytes16,bytes16,bytes32[],uint8,uint256)"
       | "popFromField(bytes32,bytes32[],uint8,uint256)"
@@ -125,9 +135,11 @@ export interface IWorldInterface extends utils.Interface {
       | "setMetadata(bytes32,string,string[])"
       | "setRecord(bytes16,bytes16,bytes32[],bytes)"
       | "setRecord(bytes32,bytes32[],bytes)"
+      | "sidestep"
       | "updateCards"
       | "updateInField(bytes32,bytes32[],uint8,uint256,bytes)"
       | "updateInField(bytes16,bytes16,bytes32[],uint8,uint256,bytes)"
+      | "whirlwindaxe"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -147,6 +159,14 @@ export interface IWorldInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "cover",
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
     functionFragment: "creatematch",
     values?: undefined
   ): string;
@@ -160,6 +180,14 @@ export interface IWorldInterface extends utils.Interface {
       PromiseOrValue<BytesLike>,
       PromiseOrValue<BytesLike>,
       PromiseOrValue<BytesLike>[]
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "drainsword",
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
     ]
   ): string;
   encodeFunctionData(
@@ -253,7 +281,23 @@ export interface IWorldInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
+    functionFragment: "meteor",
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
     functionFragment: "movecard",
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "piercingshot",
     values: [
       PromiseOrValue<BytesLike>,
       PromiseOrValue<BigNumberish>,
@@ -448,6 +492,14 @@ export interface IWorldInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "sidestep",
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
     functionFragment: "updateCards",
     values: [PromiseOrValue<BytesLike>]
   ): string;
@@ -472,9 +524,14 @@ export interface IWorldInterface extends utils.Interface {
       PromiseOrValue<BytesLike>
     ]
   ): string;
+  encodeFunctionData(
+    functionFragment: "whirlwindaxe",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
 
   decodeFunctionResult(functionFragment: "attack", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "call", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "cover", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "creatematch",
     data: BytesLike
@@ -487,6 +544,7 @@ export interface IWorldInterface extends utils.Interface {
     functionFragment: "deleteRecord(bytes16,bytes16,bytes32[])",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "drainsword", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "emitEphemeralRecord(bytes16,bytes16,bytes32[],bytes)",
     data: BytesLike
@@ -532,7 +590,12 @@ export interface IWorldInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "isStore", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "joinmatch", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "meteor", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "movecard", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "piercingshot",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "placecard", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "popFromField(bytes16,bytes16,bytes32[],uint8,uint256)",
@@ -619,6 +682,7 @@ export interface IWorldInterface extends utils.Interface {
     functionFragment: "setRecord(bytes32,bytes32[],bytes)",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "sidestep", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "updateCards",
     data: BytesLike
@@ -629,6 +693,10 @@ export interface IWorldInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "updateInField(bytes16,bytes16,bytes32[],uint8,uint256,bytes)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "whirlwindaxe",
     data: BytesLike
   ): Result;
 
@@ -743,6 +811,13 @@ export interface IWorld extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    cover(
+      cardKey: PromiseOrValue<BytesLike>,
+      newX: PromiseOrValue<BigNumberish>,
+      newY: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     creatematch(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -757,6 +832,13 @@ export interface IWorld extends BaseContract {
       namespace: PromiseOrValue<BytesLike>,
       name: PromiseOrValue<BytesLike>,
       key: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    drainsword(
+      cardKey: PromiseOrValue<BytesLike>,
+      newX: PromiseOrValue<BigNumberish>,
+      newY: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -854,7 +936,21 @@ export interface IWorld extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    meteor(
+      cardKey: PromiseOrValue<BytesLike>,
+      newX: PromiseOrValue<BigNumberish>,
+      newY: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     movecard(
+      cardKey: PromiseOrValue<BytesLike>,
+      newX: PromiseOrValue<BigNumberish>,
+      newY: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    piercingshot(
       cardKey: PromiseOrValue<BytesLike>,
       newX: PromiseOrValue<BigNumberish>,
       newY: PromiseOrValue<BigNumberish>,
@@ -1032,6 +1128,13 @@ export interface IWorld extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    sidestep(
+      cardKey: PromiseOrValue<BytesLike>,
+      newX: PromiseOrValue<BigNumberish>,
+      newY: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     updateCards(
       matchKey: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1055,6 +1158,11 @@ export interface IWorld extends BaseContract {
       dataToSet: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    whirlwindaxe(
+      cardKey: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
   attack(
@@ -1071,6 +1179,13 @@ export interface IWorld extends BaseContract {
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  cover(
+    cardKey: PromiseOrValue<BytesLike>,
+    newX: PromiseOrValue<BigNumberish>,
+    newY: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   creatematch(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -1085,6 +1200,13 @@ export interface IWorld extends BaseContract {
     namespace: PromiseOrValue<BytesLike>,
     name: PromiseOrValue<BytesLike>,
     key: PromiseOrValue<BytesLike>[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  drainsword(
+    cardKey: PromiseOrValue<BytesLike>,
+    newX: PromiseOrValue<BigNumberish>,
+    newY: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1182,7 +1304,21 @@ export interface IWorld extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  meteor(
+    cardKey: PromiseOrValue<BytesLike>,
+    newX: PromiseOrValue<BigNumberish>,
+    newY: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   movecard(
+    cardKey: PromiseOrValue<BytesLike>,
+    newX: PromiseOrValue<BigNumberish>,
+    newY: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  piercingshot(
     cardKey: PromiseOrValue<BytesLike>,
     newX: PromiseOrValue<BigNumberish>,
     newY: PromiseOrValue<BigNumberish>,
@@ -1360,6 +1496,13 @@ export interface IWorld extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  sidestep(
+    cardKey: PromiseOrValue<BytesLike>,
+    newX: PromiseOrValue<BigNumberish>,
+    newY: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   updateCards(
     matchKey: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1384,6 +1527,11 @@ export interface IWorld extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  whirlwindaxe(
+    cardKey: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     attack(
       cardKey: PromiseOrValue<BytesLike>,
@@ -1399,6 +1547,13 @@ export interface IWorld extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
+    cover(
+      cardKey: PromiseOrValue<BytesLike>,
+      newX: PromiseOrValue<BigNumberish>,
+      newY: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     creatematch(overrides?: CallOverrides): Promise<void>;
 
     "deleteRecord(bytes32,bytes32[])"(
@@ -1411,6 +1566,13 @@ export interface IWorld extends BaseContract {
       namespace: PromiseOrValue<BytesLike>,
       name: PromiseOrValue<BytesLike>,
       key: PromiseOrValue<BytesLike>[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    drainsword(
+      cardKey: PromiseOrValue<BytesLike>,
+      newX: PromiseOrValue<BigNumberish>,
+      newY: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1508,7 +1670,21 @@ export interface IWorld extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    meteor(
+      cardKey: PromiseOrValue<BytesLike>,
+      newX: PromiseOrValue<BigNumberish>,
+      newY: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     movecard(
+      cardKey: PromiseOrValue<BytesLike>,
+      newX: PromiseOrValue<BigNumberish>,
+      newY: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    piercingshot(
       cardKey: PromiseOrValue<BytesLike>,
       newX: PromiseOrValue<BigNumberish>,
       newY: PromiseOrValue<BigNumberish>,
@@ -1686,6 +1862,13 @@ export interface IWorld extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    sidestep(
+      cardKey: PromiseOrValue<BytesLike>,
+      newX: PromiseOrValue<BigNumberish>,
+      newY: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     updateCards(
       matchKey: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1707,6 +1890,11 @@ export interface IWorld extends BaseContract {
       schemaIndex: PromiseOrValue<BigNumberish>,
       startByteIndex: PromiseOrValue<BigNumberish>,
       dataToSet: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    whirlwindaxe(
+      cardKey: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -1772,6 +1960,13 @@ export interface IWorld extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    cover(
+      cardKey: PromiseOrValue<BytesLike>,
+      newX: PromiseOrValue<BigNumberish>,
+      newY: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     creatematch(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -1786,6 +1981,13 @@ export interface IWorld extends BaseContract {
       namespace: PromiseOrValue<BytesLike>,
       name: PromiseOrValue<BytesLike>,
       key: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    drainsword(
+      cardKey: PromiseOrValue<BytesLike>,
+      newX: PromiseOrValue<BigNumberish>,
+      newY: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1883,7 +2085,21 @@ export interface IWorld extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    meteor(
+      cardKey: PromiseOrValue<BytesLike>,
+      newX: PromiseOrValue<BigNumberish>,
+      newY: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     movecard(
+      cardKey: PromiseOrValue<BytesLike>,
+      newX: PromiseOrValue<BigNumberish>,
+      newY: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    piercingshot(
       cardKey: PromiseOrValue<BytesLike>,
       newX: PromiseOrValue<BigNumberish>,
       newY: PromiseOrValue<BigNumberish>,
@@ -2061,6 +2277,13 @@ export interface IWorld extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    sidestep(
+      cardKey: PromiseOrValue<BytesLike>,
+      newX: PromiseOrValue<BigNumberish>,
+      newY: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     updateCards(
       matchKey: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2084,6 +2307,11 @@ export interface IWorld extends BaseContract {
       dataToSet: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    whirlwindaxe(
+      cardKey: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -2101,6 +2329,13 @@ export interface IWorld extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    cover(
+      cardKey: PromiseOrValue<BytesLike>,
+      newX: PromiseOrValue<BigNumberish>,
+      newY: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     creatematch(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -2115,6 +2350,13 @@ export interface IWorld extends BaseContract {
       namespace: PromiseOrValue<BytesLike>,
       name: PromiseOrValue<BytesLike>,
       key: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    drainsword(
+      cardKey: PromiseOrValue<BytesLike>,
+      newX: PromiseOrValue<BigNumberish>,
+      newY: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -2212,7 +2454,21 @@ export interface IWorld extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    meteor(
+      cardKey: PromiseOrValue<BytesLike>,
+      newX: PromiseOrValue<BigNumberish>,
+      newY: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     movecard(
+      cardKey: PromiseOrValue<BytesLike>,
+      newX: PromiseOrValue<BigNumberish>,
+      newY: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    piercingshot(
       cardKey: PromiseOrValue<BytesLike>,
       newX: PromiseOrValue<BigNumberish>,
       newY: PromiseOrValue<BigNumberish>,
@@ -2390,6 +2646,13 @@ export interface IWorld extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    sidestep(
+      cardKey: PromiseOrValue<BytesLike>,
+      newX: PromiseOrValue<BigNumberish>,
+      newY: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     updateCards(
       matchKey: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2411,6 +2674,11 @@ export interface IWorld extends BaseContract {
       schemaIndex: PromiseOrValue<BigNumberish>,
       startByteIndex: PromiseOrValue<BigNumberish>,
       dataToSet: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    whirlwindaxe(
+      cardKey: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

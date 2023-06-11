@@ -11,6 +11,7 @@ import {CurrentMana} from "../codegen/tables/CurrentMana.sol";
 import {addressToEntityKey} from "../addressToEntityKey.sol";
 import {positionToEntityKey} from "../positionToEntityKey.sol";
 import {CardTypes} from "../codegen/Types.sol";
+import {AbilityTypes} from "../codegen/Types.sol";
 // Tables
 import {Card} from "../codegen/tables/Card.sol";
 import {OwnedBy} from "../codegen/tables/OwnedBy.sol";
@@ -25,6 +26,7 @@ import {Position} from "../codegen/tables/Position.sol";
 import {IsBase} from "../codegen/tables/IsBase.sol";
 import {LibDefaults} from "../libs/LibCards.sol";
 import {PlacedCards} from "../codegen/tables/PlacedCards.sol";
+import {AbilityType} from "../codegen/tables/AbilityType.sol";
 
 contract JoinMatchSystem is System {
     function createCards(bytes32 player, uint32 playerIndex, bytes32 gameKey) private {
@@ -40,6 +42,17 @@ contract JoinMatchSystem is System {
             CurrentHp.set(cardKey, LibDefaults.health(CardTypes(j)));
             MovementSpeed.set(cardKey, LibDefaults.movement(CardTypes(j)));
             ActionReady.set(cardKey, true);
+            if (j == 4) {
+                AbilityType.set(cardKey, AbilityTypes.Meteor);
+            } else if (j == 1) {
+                AbilityType.set(cardKey, AbilityTypes.WhirlwindAxe);
+            } else if (j == 3) {
+                AbilityType.set(cardKey, AbilityTypes.PiercingShot);
+            } else if (j == 0) {
+                AbilityType.set(cardKey, AbilityTypes.DrainSword);
+            } else if (j == 2) {
+                AbilityType.set(cardKey, AbilityTypes.Sidestep);
+            }
         }
 
         bytes32 baseTR = bytes32(keccak256(abi.encodePacked(block.number, player, gasleft(), playerIndex + 1001)));

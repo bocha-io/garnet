@@ -14,15 +14,20 @@ import (
 	"github.com/hanchon/garnet/internal/txbuilder"
 )
 
-func validateAttack(db *data.Database, cardID [32]byte, msg *Attack, walletAddress string) (bool, error) {
+func validateSidestep(db *data.Database, cardID [32]byte, msg *Sidestep, walletAddress string) (bool, error) {
 	if len(walletAddress) > 2 {
 		walletAddress = walletAddress[2:]
 	}
 	w := db.GetWorld(WorldID)
 
-	gameKey, err := commonValidation(db, w, cardID, walletAddress, attackManaCost)
+	gameKey, err := commonValidation(db, w, cardID, walletAddress, sidestepManaCost)
 	if err != nil {
 		return false, err
+	}
+
+	cardAbilityType, err := GetCardAbilityType(db, w, hexutil.Encode(cardID[:]))
+	if err != nil || cardAbilityType != abilitySidestep {
+		return false, fmt.Errorf("card does not have the ability")
 	}
 
 	actionReady := IsCardReady(db, w, hexutil.Encode(cardID[:]))
@@ -69,32 +74,28 @@ func validateAttack(db *data.Database, cardID [32]byte, msg *Attack, walletAddre
 	return true, nil
 }
 
-func attackPrediction(db *data.Database, cardID [32]byte, msg *Attack, txhash common.Hash) (string, AttackResponse, error) {
+func sidestepPrediction(db *data.Database, cardID [32]byte, msg *Sidestep, txhash common.Hash) (string, SkillResponse, error) {
 	w := db.GetWorld(WorldID)
 	gameField, gameKey, err := GetGameFromCard(db, w, cardID)
 	if err != nil {
 		logger.LogError(fmt.Sprintf("[backend] card not found in used in table %q, %s", cardID[:], err.Error()))
-		return "", AttackResponse{}, err
+		return "", SkillResponse{}, err
 	}
 
 	_, cardOwner, err := GetCardOwner(db, w, cardID)
 	if err != nil {
 		logger.LogError(fmt.Sprintf("[backend] failed to get the card owner %s: %s", hexutil.Encode(cardID[:]), err.Error()))
-		return "", AttackResponse{}, err
+		return "", SkillResponse{}, err
 	}
 
 	attackedCard, err := GetCardInPosition(db, w, gameKey, msg.X, msg.Y)
 	if err != nil {
 		logger.LogError(fmt.Sprintf("[backend] there is no card to attack %s, (%d,%d): %s", gameKey, msg.X, msg.Y, err.Error()))
-		return "", AttackResponse{}, err
+		return "", SkillResponse{}, err
 	}
 
 	logger.LogInfo(fmt.Sprintf("[backend] attaking the card %s", attackedCard))
-	attackDmg, err := GetCardAttack(db, w, cardID)
-	if err != nil {
-		logger.LogError(fmt.Sprintf("[backend] could not get the attack dmg for card %q, %s", cardID, err.Error()))
-		return "", AttackResponse{}, err
-	}
+	attackDmg := sidestepAttack
 
 	_, base, err := GetBaseFromCard(db, w, attackedCard)
 	if err == nil {
@@ -109,13 +110,18 @@ func attackPrediction(db *data.Database, cardID [32]byte, msg *Attack, txhash co
 	currentHp, err := GetCardCurrentHp(db, w, attackedCard)
 	if err != nil {
 		logger.LogError(fmt.Sprintf("[backend] could not get the current hp for card %s, %s", attackedCard, err.Error()))
-		return "", AttackResponse{}, err
+		return "", SkillResponse{}, err
 	}
 
 	currentMana, err := GetCurrentManaFromGame(db, w, gameKey)
 	if err != nil {
 		logger.LogError(fmt.Sprintf("[backend] could not get current mana %s, %s", gameKey, err.Error()))
-		return "", AttackResponse{}, err
+		return "", SkillResponse{}, err
+	}
+	initialPos, err := GetCardSidestepInitialPosition(db, w, hexutil.Encode(cardID[:]))
+	if err != nil {
+		logger.LogError(fmt.Sprintf("[backend] could not get initial pos %s, %s", hexutil.Encode(cardID[:]), err.Error()))
+		return "", SkillResponse{}, err
 	}
 
 	events := []data.MudEvent{
@@ -130,7 +136,17 @@ func attackPrediction(db *data.Database, cardID [32]byte, msg *Attack, txhash co
 			Table: "CurrentMana",
 			Key:   gameKey,
 			Fields: []data.Field{
-				{Key: "value", Data: data.UintField{Data: *big.NewInt(currentMana - attackManaCost)}},
+				{Key: "value", Data: data.UintField{Data: *big.NewInt(currentMana - sidestepManaCost)}},
+			},
+		},
+		{
+			Table: "Position",
+			Key:   hexutil.Encode(cardID[:]),
+			Fields: []data.Field{
+				{Key: "placed", Data: data.BoolField{Data: true}},
+				{Key: "gamekey", Data: gameField},
+				{Key: "x", Data: data.UintField{Data: *big.NewInt(initialPos.X)}},
+				{Key: "y", Data: data.UintField{Data: *big.NewInt(initialPos.Y)}},
 			},
 		},
 	}
@@ -169,58 +185,63 @@ func attackPrediction(db *data.Database, cardID [32]byte, msg *Attack, txhash co
 	},
 	)
 
-	response := AttackResponse{
+	response := SkillResponse{
+		MovedCards:     []MovedCard{{CardID: msg.CardID, X: initialPos.X, Y: initialPos.Y}},
 		UUID:           msg.UUID,
-		MsgType:        "attackresponse",
+		MsgType:        "sidestepresponse",
 		CardIDAttacker: msg.CardID,
-		CardIDAttacked: attackedCard,
-		X:              msg.X,
-		Y:              msg.Y,
-		PreviousHp:     currentHp,
-		CurrentHp:      currentHp - attackDmg,
-		Player:         cardOwner,
-		LeftOverMana:   currentMana - attackManaCost,
+		AffectedCards: []AffectedCard{
+			{
+				CardIDAttacked: attackedCard,
+				PreviousHp:     currentHp,
+				CurrentHp:      currentHp - attackDmg,
+			},
+		},
+		Player:       cardOwner,
+		LeftOverMana: currentMana - drainSwordManaCost,
 	}
 
 	return gameKey, response, nil
 }
 
-func AttackHandler(authenticated bool, walletID int, walletAddress string, db *data.Database, p []byte) (string, AttackResponse, error) {
+func SidestepHandler(authenticated bool, walletID int, walletAddress string, db *data.Database, p []byte) (string, SkillResponse, error) {
 	// TODO: Wallet address is used to validate the action
 	if !authenticated {
-		return "", AttackResponse{}, fmt.Errorf("user not authenticated")
+		return "", SkillResponse{}, fmt.Errorf("user not authenticated")
 	}
 
 	logger.LogDebug("[backend] processing attack request")
 
-	var msg Attack
+	var msg Sidestep
 	err := json.Unmarshal(p, &msg)
 	if err != nil {
 		logger.LogError(fmt.Sprintf("[backend] error decoding attack message: %s", err))
-		return "", AttackResponse{}, nil
+		return "", SkillResponse{}, nil
 	}
 
 	cardID, err := dbconnector.StringToSlice(msg.CardID)
 	if err != nil {
 		logger.LogDebug(fmt.Sprintf("[backend] error creating transaction to attack a card: %s", err))
-		return "", AttackResponse{}, nil
+		return "", SkillResponse{}, nil
 	}
 
-	valid, err := validateAttack(db, cardID, &msg, walletAddress)
+	valid, err := validateSidestep(db, cardID, &msg, walletAddress)
 	if err != nil || !valid {
-		return "", AttackResponse{}, nil
+		return "", SkillResponse{}, nil
 	}
 
-	txhash, err := txbuilder.SendTransaction(walletID, "attack", cardID, uint32(msg.X), uint32(msg.Y))
+	txhash, err := txbuilder.SendTransaction(walletID, "sidestep", cardID, uint32(msg.X), uint32(msg.Y))
 	if err != nil {
 		// TODO: send response saying that the game could not be created
 		logger.LogDebug(fmt.Sprintf("[backend] error creating transaction to attack: %s", err))
-		return "", AttackResponse{}, nil
+		return "", SkillResponse{}, nil
 	}
-	gameID, response, err := attackPrediction(db, cardID, &msg, txhash)
+
+	gameID, response, err := sidestepPrediction(db, cardID, &msg, txhash)
 	if err != nil {
 		logger.LogDebug(fmt.Sprintf("[backend] error prediction attack: %s", err))
-		return "", AttackResponse{}, err
+		return "", SkillResponse{}, err
 	}
+
 	return gameID, response, nil
 }

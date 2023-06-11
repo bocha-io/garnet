@@ -7,6 +7,7 @@ import {getKeysWithValue} from "@latticexyz/world/src/modules/keyswithvalue/getK
 // Utils
 import {addressToEntityKey} from "../addressToEntityKey.sol";
 import {CardTypes} from "../codegen/Types.sol";
+import {AbilityTypes} from "../codegen/Types.sol";
 // Tables
 import {Card} from "../codegen/tables/Card.sol";
 import {OwnedBy} from "../codegen/tables/OwnedBy.sol";
@@ -25,15 +26,18 @@ import {ActionReady} from "../codegen/tables/ActionReady.sol";
 import {Match} from "../codegen/tables/Match.sol";
 import {PlayerOne} from "../codegen/tables/PlayerOne.sol";
 import {PlayerTwo} from "../codegen/tables/PlayerTwo.sol";
+import {AbilityType} from "../codegen/tables/AbilityType.sol";
+import {SidestepInitialPosition} from "../codegen/tables/SidestepInitialPosition.sol";
 
 import {LibCover} from "../libs/LibCover.sol";
 
-contract AttackSystem is System {
+contract SidestepSystem is System {
     function validate(bytes32 cardKey, bytes32 gameKey, bytes32 playerKey) private view {
         require(Card.get(cardKey), "card does not exist");
         require(ActionReady.get(cardKey) == true, "card already attacked");
         require(OwnedBy.get(cardKey) == playerKey, "the sender is not the owner of the card");
         require(CurrentPlayer.get(gameKey) == playerKey, "it is not the player turn");
+        require(AbilityType.get(cardKey) == AbilityTypes.Sidestep, "card does not have the ability");
     }
 
     function limits(bytes32 cardKey, bytes32 gameKeyGenerated, bytes32 playerKey, uint32 newX, uint32 newY)
@@ -61,10 +65,10 @@ contract AttackSystem is System {
         require(newY <= mapConfig.height && newY >= 0, "invalid y");
 
         // Mana
-        require(CurrentMana.get(gameKeyGenerated) >= 2, "no enough mana");
+        require(CurrentMana.get(gameKeyGenerated) >= 4, "no enough mana");
     }
 
-    function attack(bytes32 cardKey, uint32 newX, uint32 newY) public {
+    function sidestep(bytes32 cardKey, uint32 newX, uint32 newY) public {
         bytes32 gameKeyGenerated = UsedIn.get(cardKey);
         bytes32 playerKey = addressToEntityKey(_msgSender());
         require(gameKeyGenerated != 0, "game id is incorrect");
@@ -113,6 +117,15 @@ contract AttackSystem is System {
 
         ActionReady.set(cardKey, false);
         // Update game status
-        CurrentMana.set(gameKeyGenerated, CurrentMana.get(gameKeyGenerated) - 2);
+        CurrentMana.set(gameKeyGenerated, CurrentMana.get(gameKeyGenerated) - 4);
+
+        // Jump back
+        (bool placed, uint32 x, uint32 y) = SidestepInitialPosition.get(cardKey);
+        require(placed, "the card does not have initial position");
+        // Check that is empty
+        keysAtPos = getKeysWithValue(PositionTableId, Position.encode(true, gameKeyGenerated, x, y));
+        if (keysAtPos.length == 0) {
+            Position.set(cardKey, true, gameKeyGenerated, x, y);
+        }
     }
 }

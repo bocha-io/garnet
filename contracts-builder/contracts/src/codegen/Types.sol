@@ -11,3 +11,12 @@ enum CardTypes {
   Madmartigan,
   Base
 }
+
+enum AbilityTypes {
+  Meteor,
+  DrainSword,
+  PiercingShot,
+  WhirlwindAxe,
+  Sidestep,
+  Cover
+}

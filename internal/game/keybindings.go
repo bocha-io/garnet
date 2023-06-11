@@ -333,7 +333,7 @@ func (gs *GameState) selectCard(x int64, y int64) {
 	for _, value := range gs.BoardStatus.Cards {
 		if value.Position.X == x && value.Position.Y == y {
 			gs.UnitSelected = value.ID
-			gs.notificationMessages = append(gs.notificationMessages, fmt.Sprintf("card selected, pos x:%d, y:%d", x, y))
+			gs.notificationMessages = append(gs.notificationMessages, fmt.Sprintf("card selected %s, pos x:%d, y:%d", value.ID, x, y))
 
 			if err := gs.updateNotifications(); err != nil {
 				// TODO: move all the updates to a game cycle

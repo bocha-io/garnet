@@ -30,6 +30,31 @@ export default mudConfig({
       name: "register",
       openAccess: true,
     },
+    // Abilities
+    MetorSystem: {
+      name: "meteor",
+      openAccess: true,
+    },
+    DrainSwordSystem: {
+      name: "drainsword",
+      openAccess: true,
+    },
+    PiercingShotSystem: {
+      name: "piercingshot",
+      openAccess: true,
+    },
+    WhirlwindAxeSystem: {
+      name: "whirlwindaxe",
+      openAccess: true,
+    },
+    SidestepSystem: {
+      name: "sidestep",
+      openAccess: true,
+    },
+    CoverSystem: {
+      name: "cover",
+      openAccess: true,
+    },
   },
   tables: {
       // Users
@@ -65,6 +90,7 @@ export default mudConfig({
     UsedIn: "bytes32", // relation between match and card
     IsBase: "bytes32",
     UnitType: "CardTypes",
+    AbilityType: "AbilityTypes",
     AttackDamage: "uint32",
     MaxHp: "uint32",
     CurrentHp: "uint32",
@@ -79,11 +105,30 @@ export default mudConfig({
         y: "uint32",
       },
     },
+    // Skills
+    SidestepInitialPosition: {
+      dataStruct: false,
+      schema: {
+        active: "bool",
+        x: "uint32",
+        y: "uint32",
+      },
+    },
+    // Key is the game id, value card id
+    CoverPosition:{
+      dataStruct: false,
+      schema: {
+        coverOneCard: "bytes32",
+        coverOnePlayer: "bytes32",
+        coverTwoCard: "bytes32",
+        coverTwoPlayer: "bytes32",
+      },
   },
-
+  },
   enums: {
     // Base MUST be the last value
     CardTypes: ["VaanStrife", "Felguard", "Sakura", "Freya", "Lyra", "Madmartigan", "Base"],
+    AbilityTypes: ["Meteor", "DrainSword", "PiercingShot", "WhirlwindAxe", "Sidestep", "Cover"],
   },
   modules: [
     {

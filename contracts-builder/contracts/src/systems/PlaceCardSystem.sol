@@ -15,6 +15,7 @@ import {CurrentPlayer} from "../codegen/tables/CurrentPlayer.sol";
 import {PlayerOne} from "../codegen/tables/PlayerOne.sol";
 import {UnitType} from "../codegen/tables/UnitType.sol";
 import {Position, PositionTableId} from "../codegen/tables/Position.sol";
+import {SidestepInitialPosition} from "../codegen/tables/SidestepInitialPosition.sol";
 import {PlacedCards, PlacedCardsData} from "../codegen/tables/PlacedCards.sol";
 import {MapConfig, MapConfigData} from "../codegen/tables/MapConfig.sol";
 import {CurrentMana} from "../codegen/tables/CurrentMana.sol";
@@ -86,5 +87,9 @@ contract PlaceCardSystem is System {
         Position.set(cardKey, true, gameKeyGenerated, newX, newY);
         PlacedCards.set(gameKeyGenerated, placedCards.p1Cards, placedCards.p2Cards);
         CurrentMana.set(gameKeyGenerated, CurrentMana.get(gameKeyGenerated) - 3);
+
+        if (UnitType.get(cardKey) == CardTypes.Sakura) {
+            SidestepInitialPosition.set(cardKey, true, newX, newY);
+        }
     }
 }

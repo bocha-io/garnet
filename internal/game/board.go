@@ -31,7 +31,7 @@ func board(pos ViewPosition, g *gocui.Gui) error {
 		endY := offsetY + mulY
 		for i := 0; i <= boardLimitX; i++ {
 			for j := 0; j <= boardLimitY; j++ {
-				if _, err := g.SetView(fmt.Sprintf("%s%d%d", boardViewName, j, i), offsetX, offsetY, endX, endY); err != nil {
+				if _, err := g.SetView(fmt.Sprintf("%s%d%d", boardViewName, j, boardLimitY-i), offsetX, offsetY, endX, endY); err != nil {
 					if err != gocui.ErrUnknownView {
 						return err
 					}

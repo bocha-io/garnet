@@ -138,6 +138,24 @@ func placeCardPrediction(db *data.Database, cardID [32]byte, msg *PlaceCard, txh
 		},
 	}
 
+	cardIDAsString := hexutil.Encode(cardID[:])
+	if cardAbilityType, err := GetCardAbilityType(db, w, cardIDAsString); err != nil {
+		// Store sidestep initial position
+		if cardAbilityType == abilitySidestep {
+			if pos, err := GetCardPosition(db, w, cardIDAsString); err != nil {
+				events = append(events, data.MudEvent{
+					Table: "SidestepInitialPosition",
+					Key:   cardIDAsString,
+					Fields: []data.Field{
+						{Key: "placed", Data: data.BoolField{Data: true}},
+						{Key: "x", Data: data.UintField{Data: *big.NewInt(pos.X)}},
+						{Key: "y", Data: data.UintField{Data: *big.NewInt(pos.Y)}},
+					},
+				})
+			}
+		}
+	}
+
 	db.AddTxSent(data.UnconfirmedTransaction{
 		Txhash: txhash.Hex(),
 		Events: events,

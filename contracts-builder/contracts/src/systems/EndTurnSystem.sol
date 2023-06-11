@@ -4,7 +4,10 @@ pragma solidity >=0.8.0;
 // Core
 import {System} from "@latticexyz/world/src/System.sol";
 import {getKeysWithValue} from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
+import {CardTypes} from "../codegen/Types.sol";
+
 // Tables
+import {UnitType} from "../codegen/tables/UnitType.sol";
 import {Match} from "../codegen/tables/Match.sol";
 import {PlayerOne} from "../codegen/tables/PlayerOne.sol";
 import {PlayerTwo} from "../codegen/tables/PlayerTwo.sol";
@@ -14,6 +17,10 @@ import {CurrentMana} from "../codegen/tables/CurrentMana.sol";
 import {addressToEntityKey} from "../addressToEntityKey.sol";
 import {UsedIn, UsedInTableId} from "../codegen/tables/UsedIn.sol";
 import {ActionReady} from "../codegen/tables/ActionReady.sol";
+import {Position} from "../codegen/tables/Position.sol";
+import {SidestepInitialPosition} from "../codegen/tables/SidestepInitialPosition.sol";
+
+import {CoverPosition} from "../codegen/tables/CoverPosition.sol";
 
 contract EndTurnSystem is System {
     function updateCards(bytes32 matchKey) public {
@@ -23,6 +30,12 @@ contract EndTurnSystem is System {
         for (uint256 j = 0; j < cards.length; j++) {
             // TODO: if type is base do not set this flag
             ActionReady.set(cards[j], true);
+            if (UnitType.get(cards[j]) == CardTypes.Sakura) {
+                (bool placed,, uint32 x, uint32 y) = Position.get(cards[j]);
+                if (placed) {
+                    SidestepInitialPosition.set(cards[j], true, x, y);
+                }
+            }
         }
     }
 
@@ -52,5 +65,13 @@ contract EndTurnSystem is System {
         }
 
         updateCards(key);
+
+        // Update cover
+        (bytes32 card, bytes32 player, bytes32 card2, bytes32 player2) = CoverPosition.get(key);
+        if (player != bytes32(0) && player != currentPlayer) {
+            CoverPosition.set(key, bytes32(0), bytes32(0), card2, player2);
+        } else if (player2 != bytes32(0) && player2 != currentPlayer) {
+            CoverPosition.set(key, card, player, bytes32(0), bytes32(0));
+        }
     }
 }

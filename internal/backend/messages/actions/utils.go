@@ -5,9 +5,17 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/hanchon/garnet/internal/backend/messages/dbconnector"
 	"github.com/hanchon/garnet/internal/indexer/data"
 )
+
+var emptyString = "0x0000000000000000000000000000000000000000000000000000000000000000"
+
+func EmptyBytes() []byte {
+	emptyBytes, _ := hexutil.Decode(emptyString)
+	return emptyBytes
+}
 
 // Actual functions
 func GetGameFromCard(db *data.Database, w *data.World, cardID [32]byte) (data.Field, string, error) {
@@ -107,6 +115,10 @@ func GetCardUnitType(db *data.Database, w *data.World, cardID string) (int64, er
 	return dbconnector.GetInt64UsingString(db, w, cardID, "UnitType")
 }
 
+func GetCardAbilityType(db *data.Database, w *data.World, cardID string) (int64, error) {
+	return dbconnector.GetInt64UsingString(db, w, cardID, "AbilityType")
+}
+
 func GetCardMovementSpeed(db *data.Database, w *data.World, cardID string) (int64, error) {
 	return dbconnector.GetInt64UsingString(db, w, cardID, "MovementSpeed")
 }
@@ -155,7 +167,47 @@ func GetCardPosition(db *data.Database, w *data.World, cardID string) (data.Posi
 		return data.Position{X: -2, Y: -2}, fmt.Errorf(errorMsg)
 	}
 
+	if x == 99 || y == 99 {
+		return data.Position{X: -2, Y: -2}, fmt.Errorf("the card was killed")
+	}
+
 	return data.Position{X: x, Y: y}, nil
+}
+
+func GetCardSidestepInitialPosition(db *data.Database, w *data.World, cardID string) (data.Position, error) {
+	value, err := dbconnector.GetRowFieldsUsingString(db, w, cardID, "SidestepInitialPosition")
+	if err != nil || len(value) != 3 {
+		return data.Position{X: -2, Y: -2}, nil
+	}
+
+	x, err := strconv.ParseInt(value[1].Data.String(), 10, 32)
+	if err != nil {
+		errorMsg := fmt.Sprintf("[backend] could not parse X from %s value %s", "SidestepInitialPosition", value[2].Data.String())
+		return data.Position{X: -2, Y: -2}, fmt.Errorf(errorMsg)
+	}
+
+	y, err := strconv.ParseInt(value[2].Data.String(), 10, 32)
+	if err != nil {
+		errorMsg := (fmt.Sprintf("[backend] could not parse X from %s value %s", "SidestepInitialPosition", value[3].Data.String()))
+		return data.Position{X: -2, Y: -2}, fmt.Errorf(errorMsg)
+	}
+
+	return data.Position{X: x, Y: y}, nil
+}
+
+func GetCoverPosition(db *data.Database, w *data.World, gameID string) (data.CoverPosition, error) {
+	value, err := dbconnector.GetRowFieldsUsingString(db, w, gameID, "CoverPosition")
+	if err != nil || len(value) != 4 {
+		return data.CoverPosition{}, fmt.Errorf("value not found")
+	}
+
+	return data.CoverPosition{
+		Card:    strings.ReplaceAll(value[0].Data.String(), "\"", ""),
+		Player:  strings.ReplaceAll(value[1].Data.String(), "\"", ""),
+		Card2:   strings.ReplaceAll(value[2].Data.String(), "\"", ""),
+		Player2: strings.ReplaceAll(value[3].Data.String(), "\"", ""),
+		Raw:     value,
+	}, nil
 }
 
 func GetUserMatchID(db *data.Database, w *data.World, userWallet string) string {

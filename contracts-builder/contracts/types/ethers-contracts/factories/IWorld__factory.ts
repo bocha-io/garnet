@@ -349,6 +349,29 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "cardKey",
+        type: "bytes32",
+      },
+      {
+        internalType: "uint32",
+        name: "newX",
+        type: "uint32",
+      },
+      {
+        internalType: "uint32",
+        name: "newY",
+        type: "uint32",
+      },
+    ],
+    name: "cover",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "creatematch",
     outputs: [],
@@ -392,6 +415,29 @@ const _abi = [
       },
     ],
     name: "deleteRecord",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "cardKey",
+        type: "bytes32",
+      },
+      {
+        internalType: "uint32",
+        name: "newX",
+        type: "uint32",
+      },
+      {
+        internalType: "uint32",
+        name: "newY",
+        type: "uint32",
+      },
+    ],
+    name: "drainsword",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -755,7 +801,53 @@ const _abi = [
         type: "uint32",
       },
     ],
+    name: "meteor",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "cardKey",
+        type: "bytes32",
+      },
+      {
+        internalType: "uint32",
+        name: "newX",
+        type: "uint32",
+      },
+      {
+        internalType: "uint32",
+        name: "newY",
+        type: "uint32",
+      },
+    ],
     name: "movecard",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "cardKey",
+        type: "bytes32",
+      },
+      {
+        internalType: "uint32",
+        name: "newX",
+        type: "uint32",
+      },
+      {
+        internalType: "uint32",
+        name: "newY",
+        type: "uint32",
+      },
+    ],
+    name: "piercingshot",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -1367,6 +1459,29 @@ const _abi = [
     inputs: [
       {
         internalType: "bytes32",
+        name: "cardKey",
+        type: "bytes32",
+      },
+      {
+        internalType: "uint32",
+        name: "newX",
+        type: "uint32",
+      },
+      {
+        internalType: "uint32",
+        name: "newY",
+        type: "uint32",
+      },
+    ],
+    name: "sidestep",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
         name: "matchKey",
         type: "bytes32",
       },
@@ -1443,6 +1558,19 @@ const _abi = [
       },
     ],
     name: "updateInField",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "cardKey",
+        type: "bytes32",
+      },
+    ],
+    name: "whirlwindaxe",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
