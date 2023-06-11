@@ -83,13 +83,14 @@ contract SidestepSystem is System {
         require(keysAtPos.length > 0, "there is no unit in that position");
 
         bytes32 attackedKey = keysAtPos[0];
-        // TODO: validate that the card is not owned by the player
 
         // Check if it's part of the based
         bytes32 isBase = IsBase.get(attackedKey);
         if (isBase != 0) {
             attackedKey = isBase;
         }
+
+        require(OwnedBy.get(attackedKey) != playerKey, "friendy fire is not enabled");
 
         bytes32 cover = LibCover.getCoverCard(gameKeyGenerated, playerKey, newX, newY);
         if (cover != bytes32(0)) {

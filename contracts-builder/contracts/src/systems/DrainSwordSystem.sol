@@ -91,6 +91,8 @@ contract DrainSwordSystem is System {
             attackedKey = isBase;
         }
 
+        require(OwnedBy.get(attackedKey) != playerKey, "friendy fire is not enabled");
+
         bytes32 cover = LibCover.getCoverCard(gameKeyGenerated, playerKey, newX, newY);
         if (cover != bytes32(0)) {
             attackedKey = cover;

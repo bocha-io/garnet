@@ -155,7 +155,6 @@ contract PiercingShotSystem is System {
         bool baseAlreadyAttacked = false;
         for (i = 0; i < 3; i++) {
             if (cards[i].card != 0) {
-                // TODO: validate that the card is not owned by the player
                 bytes32 attackedKey = cards[i].card;
 
                 // Check if it's part of the based
@@ -167,6 +166,8 @@ contract PiercingShotSystem is System {
                     attackedKey = isBase;
                     baseAlreadyAttacked = true;
                 }
+
+                require(OwnedBy.get(attackedKey) != playerKey, "friendy fire is not enabled");
 
                 bytes32 cover = LibCover.getCoverCard(gameKeyGenerated, playerKey, cards[i].x, cards[i].y);
                 if (cover != bytes32(0)) {
