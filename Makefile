@@ -21,18 +21,28 @@ run-p2-prod:
 run-indexer:
 	@go build -o ./build/indexer ./cmd/indexer && ./build/indexer
 
-run-localnet:
+run-localnet-server:
 	@cd contracts-builder/contracts && pnpm run devnode
 
-contracts:
+contracts-server:
 	@cd contracts-builder/contracts && pnpm run dev && cd ../.. && cp contracts-builder/contracts/out/IWorld.sol/IWorld.abi.json internal/txbuilder/
 
 run-generator:
 	@go build -o ./build/generator ./cmd/generator && ./build/generator
 
-init-contracts:
+init-contracts-server:
 	@cd contracts-builder/contracts && pnpm install
 
 lint:
 	golangci-lint run --fix --out-format=line-number --issues-exit-code=0 --config .golangci.yml --color always ./...
+
+run-localnet:
+	@source /opt/homebrew/opt/nvm/nvm.sh && nvm use v18.12.0 && cd contracts-builder/contracts && pnpm run devnode
+
+contracts:
+	@source /opt/homebrew/opt/nvm/nvm.sh && nvm use v18.12.0 && cd contracts-builder/contracts && pnpm run dev && cd ../.. && cp contracts-builder/contracts/out/IWorld.sol/IWorld.abi.json internal/txbuilder/
+
+init-contracts:
+	@source /opt/homebrew/opt/nvm/nvm.sh && nvm use v18.12.0 && cd contracts-builder/contracts && pnpm install
+
 

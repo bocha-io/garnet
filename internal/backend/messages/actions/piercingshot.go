@@ -114,6 +114,7 @@ func piercingShotPrediction(db *data.Database, cardID [32]byte, msg *PiercingSho
 	affectedCards := []AffectedCard{}
 
 	for _, v := range pos {
+		logger.LogInfo(fmt.Sprintf("[test] attacking card in pos %d, %d", v.X, v.Y))
 		attackedCard, err := GetCardInPosition(db, w, gameKey, v.X, v.Y)
 		if err == nil {
 			_, base, err := GetBaseFromCard(db, w, attackedCard)
@@ -133,10 +134,12 @@ func piercingShotPrediction(db *data.Database, cardID [32]byte, msg *PiercingSho
 
 			if strings.Contains(attackedOwner, walletAddress) {
 				// Friendly fire not allowed
+				logger.LogInfo("[test] the attack is friendly fire")
 				continue
 			}
 
 			if cover, err := GetCoverCard(db, w, gameKey, cardOwner, v.X, v.Y); err == nil {
+				logger.LogInfo("[test] the attack was covered")
 				attackedCard = cover
 			}
 
