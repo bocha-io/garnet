@@ -6,11 +6,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bocha-io/garnet/internal/backend/messages/actions"
+	"github.com/bocha-io/garnet/internal/logger"
+	"github.com/bocha-io/garnet/internal/txbuilder"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/gorilla/websocket"
-	"github.com/hanchon/garnet/internal/backend/messages/actions"
-	"github.com/hanchon/garnet/internal/logger"
-	"github.com/hanchon/garnet/internal/txbuilder"
 )
 
 func writeMessage(ws *websocket.Conn, msg *string) error {

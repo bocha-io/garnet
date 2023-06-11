@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hanchon/garnet/internal/database"
-	"github.com/hanchon/garnet/internal/logger"
+	"github.com/bocha-io/garnet/internal/database"
+	"github.com/bocha-io/garnet/internal/logger"
 )
 
 func connectMessage(ws *WebSocketContainer, usersDB *database.InMemoryDatabase, p *[]byte) error {

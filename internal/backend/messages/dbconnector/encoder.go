@@ -3,8 +3,8 @@ package dbconnector
 import (
 	"fmt"
 
+	"github.com/bocha-io/garnet/internal/logger"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/hanchon/garnet/internal/logger"
 )
 
 func StringToSlice(stringID string) ([32]byte, error) {

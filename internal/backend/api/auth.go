@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/bocha-io/garnet/internal/backend/cors"
+	"github.com/bocha-io/garnet/internal/database"
+	"github.com/bocha-io/garnet/internal/logger"
+	"github.com/bocha-io/garnet/internal/txbuilder"
 	"github.com/gorilla/mux"
-	"github.com/hanchon/garnet/internal/backend/cors"
-	"github.com/hanchon/garnet/internal/database"
-	"github.com/hanchon/garnet/internal/logger"
-	"github.com/hanchon/garnet/internal/txbuilder"
 )
 
 func RestRoutes(router *mux.Router, db *database.InMemoryDatabase) {

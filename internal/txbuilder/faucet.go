@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"math/big"
 
+	"github.com/bocha-io/garnet/internal/logger"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/hanchon/garnet/internal/logger"
 )
 
 func Faucet(addr string) (common.Hash, error) {

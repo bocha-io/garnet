@@ -3,7 +3,7 @@ package game
 import (
 	"fmt"
 
-	"github.com/hanchon/garnet/internal/gui"
+	"github.com/bocha-io/garnet/internal/gui"
 	"github.com/jroimartin/gocui"
 )
 

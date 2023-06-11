@@ -1,4 +1,4 @@
-module github.com/hanchon/garnet
+module github.com/bocha-io/garnet
 
 go 1.20
 

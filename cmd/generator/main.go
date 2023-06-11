@@ -5,8 +5,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/hanchon/garnet/internal/logger"
-	"github.com/hanchon/garnet/internal/txbuilder"
+	"github.com/bocha-io/garnet/internal/logger"
+	"github.com/bocha-io/garnet/internal/txbuilder"
 )
 
 func main() {

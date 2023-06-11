@@ -1,6 +1,6 @@
 package messages
 
-import "github.com/hanchon/garnet/internal/indexer/data"
+import "github.com/bocha-io/garnet/internal/indexer/data"
 
 type BasicMessage struct {
 	MsgType string `json:"msgtype"`

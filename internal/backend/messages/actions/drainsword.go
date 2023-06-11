@@ -6,12 +6,12 @@ import (
 	"math/big"
 	"strings"
 
+	"github.com/bocha-io/garnet/internal/backend/messages/dbconnector"
+	"github.com/bocha-io/garnet/internal/indexer/data"
+	"github.com/bocha-io/garnet/internal/logger"
+	"github.com/bocha-io/garnet/internal/txbuilder"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/hanchon/garnet/internal/backend/messages/dbconnector"
-	"github.com/hanchon/garnet/internal/indexer/data"
-	"github.com/hanchon/garnet/internal/logger"
-	"github.com/hanchon/garnet/internal/txbuilder"
 )
 
 func validateDrainSword(db *data.Database, cardID [32]byte, msg *DrainSword, walletAddress string) (bool, error) {

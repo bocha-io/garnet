@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/hanchon/garnet/internal/backend/messages"
-	"github.com/hanchon/garnet/internal/game"
+	"github.com/bocha-io/garnet/internal/backend/messages"
+	"github.com/bocha-io/garnet/internal/game"
 	"github.com/jroimartin/gocui"
 )
 

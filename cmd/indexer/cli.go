@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hanchon/garnet/internal/gui"
-	"github.com/hanchon/garnet/internal/indexer/data"
-	"github.com/hanchon/garnet/internal/logger"
+	"github.com/bocha-io/garnet/internal/gui"
+	"github.com/bocha-io/garnet/internal/indexer/data"
+	"github.com/bocha-io/garnet/internal/logger"
 	"github.com/jroimartin/gocui"
 )
 

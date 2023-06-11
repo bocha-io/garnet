@@ -3,9 +3,9 @@ package mudhelpers
 import (
 	"strings"
 
+	"github.com/bocha-io/garnet/internal/logger"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/hanchon/garnet/internal/logger"
 )
 
 var (

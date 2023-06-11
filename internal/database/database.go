@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/hanchon/garnet/internal/txbuilder"
+	"github.com/bocha-io/garnet/internal/txbuilder"
 	"golang.org/x/crypto/bcrypt"
 )
 

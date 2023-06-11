@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/bocha-io/garnet/internal/indexer/data"
+	"github.com/bocha-io/garnet/internal/logger"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/hanchon/garnet/internal/indexer/data"
-	"github.com/hanchon/garnet/internal/logger"
 )
 
 // Returns gameKey and error, if there is error, the validation failed

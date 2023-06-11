@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hanchon/garnet/internal/gui"
+	"github.com/bocha-io/garnet/internal/gui"
 )
 
 var SystemTables = []string{

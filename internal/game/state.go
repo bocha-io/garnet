@@ -7,10 +7,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bocha-io/garnet/internal/backend/messages"
+	"github.com/bocha-io/garnet/internal/indexer/data"
+	"github.com/bocha-io/garnet/internal/logger"
 	"github.com/gorilla/websocket"
-	"github.com/hanchon/garnet/internal/backend/messages"
-	"github.com/hanchon/garnet/internal/indexer/data"
-	"github.com/hanchon/garnet/internal/logger"
 	"github.com/jroimartin/gocui"
 )
 

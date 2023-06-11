@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/hanchon/garnet/internal/indexer/data/mudhelpers"
-	"github.com/hanchon/garnet/internal/logger"
+	"github.com/bocha-io/garnet/internal/indexer/data/mudhelpers"
+	"github.com/bocha-io/garnet/internal/logger"
 	"go.uber.org/zap"
 )
 

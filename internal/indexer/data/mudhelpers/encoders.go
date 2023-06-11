@@ -6,9 +6,9 @@ import (
 	"math/big"
 	"strings"
 
+	"github.com/bocha-io/garnet/internal/logger"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/hanchon/garnet/internal/logger"
 	"go.uber.org/zap"
 )
 

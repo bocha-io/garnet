@@ -4,10 +4,10 @@ import (
 	"math/big"
 	"sort"
 
+	"github.com/bocha-io/garnet/internal/indexer/data/mudhelpers"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/hanchon/garnet/internal/indexer/data/mudhelpers"
 )
 
 func OrderLogs(logs []types.Log) []types.Log {

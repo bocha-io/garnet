@@ -5,9 +5,9 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/hanchon/garnet/internal/indexer/data"
-	"github.com/hanchon/garnet/internal/indexer/eth"
-	"github.com/hanchon/garnet/internal/logger"
+	"github.com/bocha-io/garnet/internal/indexer/data"
+	"github.com/bocha-io/garnet/internal/indexer/eth"
+	"github.com/bocha-io/garnet/internal/logger"
 )
 
 // func ProcessMempool(database *data.Database, quit *bool) {

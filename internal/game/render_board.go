@@ -3,7 +3,7 @@ package game
 import (
 	"time"
 
-	"github.com/hanchon/garnet/internal/indexer/data"
+	"github.com/bocha-io/garnet/internal/indexer/data"
 	"github.com/jroimartin/gocui"
 )
 

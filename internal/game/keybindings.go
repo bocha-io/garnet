@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/hanchon/garnet/internal/backend/messages"
-	"github.com/hanchon/garnet/internal/indexer/data"
-	"github.com/hanchon/garnet/internal/logger"
+	"github.com/bocha-io/garnet/internal/backend/messages"
+	"github.com/bocha-io/garnet/internal/indexer/data"
+	"github.com/bocha-io/garnet/internal/logger"
 	"github.com/jroimartin/gocui"
 )
 

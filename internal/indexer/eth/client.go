@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"math/big"
 
+	"github.com/bocha-io/garnet/internal/indexer/data"
+	"github.com/bocha-io/garnet/internal/indexer/data/mudhelpers"
+	"github.com/bocha-io/garnet/internal/indexer/eth/mudhandlers"
+	"github.com/bocha-io/garnet/internal/logger"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/hanchon/garnet/internal/indexer/data"
-	"github.com/hanchon/garnet/internal/indexer/data/mudhelpers"
-	"github.com/hanchon/garnet/internal/indexer/eth/mudhandlers"
-	"github.com/hanchon/garnet/internal/logger"
 )
 
 func GetEthereumClient(wsURL string) *ethclient.Client {

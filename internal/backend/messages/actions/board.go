@@ -3,8 +3,8 @@ package actions
 import (
 	"fmt"
 
-	"github.com/hanchon/garnet/internal/indexer/data"
-	"github.com/hanchon/garnet/internal/logger"
+	"github.com/bocha-io/garnet/internal/indexer/data"
+	"github.com/bocha-io/garnet/internal/logger"
 )
 
 const baseType = 6

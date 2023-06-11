@@ -9,10 +9,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/hanchon/garnet/internal/backend"
-	"github.com/hanchon/garnet/internal/backend/api"
-	"github.com/hanchon/garnet/internal/indexer"
-	"github.com/hanchon/garnet/internal/indexer/data"
+	"github.com/bocha-io/garnet/internal/backend"
+	"github.com/bocha-io/garnet/internal/backend/api"
+	"github.com/bocha-io/garnet/internal/indexer"
+	"github.com/bocha-io/garnet/internal/indexer/data"
 )
 
 const (

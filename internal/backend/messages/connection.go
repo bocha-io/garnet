@@ -5,12 +5,12 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/bocha-io/garnet/internal/backend/cors"
+	"github.com/bocha-io/garnet/internal/backend/messages/actions"
+	"github.com/bocha-io/garnet/internal/database"
+	"github.com/bocha-io/garnet/internal/indexer/data"
+	"github.com/bocha-io/garnet/internal/logger"
 	"github.com/gorilla/websocket"
-	"github.com/hanchon/garnet/internal/backend/cors"
-	"github.com/hanchon/garnet/internal/backend/messages/actions"
-	"github.com/hanchon/garnet/internal/database"
-	"github.com/hanchon/garnet/internal/indexer/data"
-	"github.com/hanchon/garnet/internal/logger"
 )
 
 var upgrader = websocket.Upgrader{

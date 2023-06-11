@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/bocha-io/garnet/internal/backend/messages/dbconnector"
+	"github.com/bocha-io/garnet/internal/indexer/data"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/hanchon/garnet/internal/backend/messages/dbconnector"
-	"github.com/hanchon/garnet/internal/indexer/data"
 )
 
 var emptyString = "0x0000000000000000000000000000000000000000000000000000000000000000"

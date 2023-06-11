@@ -28,7 +28,7 @@ If you have `pnpm` installed globally you can remove `source /opt/homebrew/opt/n
 - Clone and install dependencies:
 
 ```sh
-git clone https://github.com/hanchon/garnet
+git clone https://github.com/bocha-io/garnet
 make init-contracts
 ```
 
