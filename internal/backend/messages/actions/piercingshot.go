@@ -58,6 +58,10 @@ func validatePiercingShot(db *data.Database, cardID [32]byte, msg *PiercingShot,
 }
 
 func piercingShotPrediction(db *data.Database, cardID [32]byte, msg *PiercingShot, walletAddress string, txhash common.Hash) (string, SkillResponse, error) {
+	if len(walletAddress) > 2 {
+		walletAddress = walletAddress[2:]
+	}
+
 	w := db.GetWorld(WorldID)
 	gameField, gameKey, err := GetGameFromCard(db, w, cardID)
 	if err != nil {

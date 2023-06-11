@@ -192,6 +192,10 @@ func whirlwindAxePrediction(db *data.Database, cardID [32]byte, msg *WhirlwindAx
 }
 
 func WhirldwindAxeHandler(authenticated bool, walletID int, walletAddress string, db *data.Database, p []byte) (string, SkillResponse, error) {
+	if len(walletAddress) > 2 {
+		walletAddress = walletAddress[2:]
+	}
+
 	// TODO: Wallet address is used to validate the action
 	if !authenticated {
 		return "", SkillResponse{}, fmt.Errorf("user not authenticated")
