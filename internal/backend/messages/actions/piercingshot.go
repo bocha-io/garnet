@@ -117,6 +117,10 @@ func piercingShotPrediction(db *data.Database, cardID [32]byte, msg *PiercingSho
 	baseAlreadyAttacked := false
 	affectedCards := []AffectedCard{}
 
+	coverHp := int64(999)
+	coverInitialHp := int64(999)
+	coverAddress := ""
+
 	for _, v := range pos {
 		logger.LogInfo(fmt.Sprintf("[test] attacking card in pos %d, %d", v.X, v.Y))
 		attackedCard, err := GetCardInPosition(db, w, gameKey, v.X, v.Y)
@@ -142,21 +146,35 @@ func piercingShotPrediction(db *data.Database, cardID [32]byte, msg *PiercingSho
 				continue
 			}
 
-			if cover, err := GetCoverCard(db, w, gameKey, cardOwner, v.X, v.Y); err == nil {
-				logger.LogInfo("[test] the attack was covered")
+			cover, err := GetCoverCard(db, w, gameKey, cardOwner, v.X, v.Y)
+			if err == nil {
 				attackedCard = cover
 			}
 
 			logger.LogInfo(fmt.Sprintf("[backend] attaking the card %s", attackedCard))
 			attackDmg := piercingShotAttackDmg
 
-			currentHp, err := GetCardCurrentHp(db, w, attackedCard)
-			if err != nil {
-				logger.LogError(fmt.Sprintf("[backend] could not get the current hp for card %s, %s", attackedCard, err.Error()))
-				return "", SkillResponse{}, err
+			currentHp := coverHp
+
+			if attackedCard != cover || coverHp == 999 {
+				currentHp, err = GetCardCurrentHp(db, w, attackedCard)
+				if attackedCard == cover {
+					coverInitialHp = currentHp
+				}
+				if err != nil {
+					logger.LogError(fmt.Sprintf("[backend] could not get the current hp for card %s, %s", attackedCard, err.Error()))
+					return "", SkillResponse{}, err
+				}
 			}
 
-			if currentHp <= attackDmg {
+			if attackedCard == cover {
+				if coverHp < attackDmg {
+					coverHp = 0
+				} else {
+					coverHp = coverHp - attackDmg
+				}
+				coverAddress = attackedCard
+			} else if currentHp <= attackDmg {
 				affectedCards = append(affectedCards, AffectedCard{CardIDAttacked: attackedCard, PreviousHp: currentHp, CurrentHp: 0})
 				events = append(events, data.MudEvent{
 					Table: "CurrentHp",
@@ -185,6 +203,37 @@ func piercingShotPrediction(db *data.Database, cardID [32]byte, msg *PiercingSho
 					},
 				})
 			}
+		}
+	}
+
+	if coverHp != 999 {
+		affectedCards = append(affectedCards, AffectedCard{CardIDAttacked: coverAddress, PreviousHp: coverInitialHp, CurrentHp: coverHp})
+		if coverHp == 0 {
+			events = append(events, data.MudEvent{
+				Table: "CurrentHp",
+				Key:   coverAddress,
+				Fields: []data.Field{
+					{Key: "value", Data: data.UintField{Data: *big.NewInt(0)}},
+				},
+			})
+			events = append(events, data.MudEvent{
+				Table: "Position",
+				Key:   coverAddress,
+				Fields: []data.Field{
+					{Key: "placed", Data: data.BoolField{Data: true}},
+					{Key: "gamekey", Data: gameField},
+					{Key: "x", Data: data.UintField{Data: *big.NewInt(99)}},
+					{Key: "y", Data: data.UintField{Data: *big.NewInt(99)}},
+				},
+			})
+		} else {
+			events = append(events, data.MudEvent{
+				Table: "CurrentHp",
+				Key:   coverAddress,
+				Fields: []data.Field{
+					{Key: "value", Data: data.UintField{Data: *big.NewInt(coverHp)}},
+				},
+			})
 		}
 	}
 

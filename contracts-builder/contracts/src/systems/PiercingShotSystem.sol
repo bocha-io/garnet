@@ -153,6 +153,8 @@ contract PiercingShotSystem is System {
         CardToAttack[3] memory cards = getDirections(cardKey, gameKeyGenerated, newX, newY);
         uint256 i = 0;
         bool baseAlreadyAttacked = false;
+        bytes32 isCoverDead = bytes32(0);
+
         for (i = 0; i < 3; i++) {
             if (cards[i].card != 0) {
                 bytes32 attackedKey = cards[i].card;
@@ -184,19 +186,27 @@ contract PiercingShotSystem is System {
                 uint32 hp = CurrentHp.get(attackedKey);
                 if (hp <= attackDmg) {
                     // DEAD
-                    CurrentHp.set(attackedKey, 0);
-                    Position.set(attackedKey, true, gameKeyGenerated, 99, 99);
-                    if (isBase != 0) {
-                        // TODO: delete everything
-                        PlayerOne.deleteRecord(gameKeyGenerated);
-                        PlayerTwo.deleteRecord(gameKeyGenerated);
-                        Match.deleteRecord(gameKeyGenerated);
+                    if (attackedKey != cover) {
+                        CurrentHp.set(attackedKey, 0);
+                        Position.set(attackedKey, true, gameKeyGenerated, 99, 99);
+                        if (isBase != 0) {
+                            // TODO: delete everything
+                            PlayerOne.deleteRecord(gameKeyGenerated);
+                            PlayerTwo.deleteRecord(gameKeyGenerated);
+                            Match.deleteRecord(gameKeyGenerated);
+                        }
+                    } else {
+                        isCoverDead = cover;
                     }
                 } else {
                     // Reduce hp
                     CurrentHp.set(attackedKey, hp - attackDmg);
                 }
             }
+        }
+
+        if (isCoverDead != bytes32(0)) {
+            Position.set(isCoverDead, true, gameKeyGenerated, 99, 99);
         }
 
         ActionReady.set(cardKey, false);
