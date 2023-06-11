@@ -355,16 +355,6 @@ const _abi = [
         name: "cardKey",
         type: "bytes32",
       },
-      {
-        internalType: "uint32",
-        name: "newX",
-        type: "uint32",
-      },
-      {
-        internalType: "uint32",
-        name: "newY",
-        type: "uint32",
-      },
     ],
     name: "cover",
     outputs: [],

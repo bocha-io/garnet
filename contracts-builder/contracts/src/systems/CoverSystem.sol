@@ -39,7 +39,7 @@ contract CoverSystem is System {
         require(AbilityType.get(cardKey) == AbilityTypes.Cover, "card does not have the ability");
     }
 
-    function limits(bytes32 cardKey, bytes32 gameKeyGenerated, bytes32 playerKey, uint32 newX, uint32 newY)
+    function limits(bytes32 cardKey, bytes32 gameKeyGenerated, bytes32 playerKey)
         private
         view
         returns (PlacedCardsData memory)
@@ -54,13 +54,13 @@ contract CoverSystem is System {
         require(CurrentMana.get(gameKeyGenerated) >= 4, "no enough mana");
     }
 
-    function cover(bytes32 cardKey, uint32 newX, uint32 newY) public {
+    function cover(bytes32 cardKey) public {
         bytes32 gameKeyGenerated = UsedIn.get(cardKey);
         bytes32 playerKey = addressToEntityKey(_msgSender());
         require(gameKeyGenerated != 0, "game id is incorrect");
         validate(cardKey, gameKeyGenerated, playerKey);
         // limits
-        limits(cardKey, gameKeyGenerated, playerKey, newX, newY);
+        limits(cardKey, gameKeyGenerated, playerKey);
         // Check that there is no card in that position
         ActionReady.set(cardKey, false);
         // Update game status

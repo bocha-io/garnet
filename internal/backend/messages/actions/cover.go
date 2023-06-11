@@ -47,6 +47,8 @@ func coverPrediction(db *data.Database, cardID [32]byte, msg *Cover, txhash comm
 		return "", SkillResponse{}, err
 	}
 
+	logger.LogInfo(fmt.Sprintf("[test] game key %s",gameKey))
+
 	owner, cardOwner, err := GetCardOwner(db, w, cardID)
 	if err != nil {
 		logger.LogError(fmt.Sprintf("[backend] failed to get the card owner %s: %s", hexutil.Encode(cardID[:]), err.Error()))
@@ -59,25 +61,31 @@ func coverPrediction(db *data.Database, cardID [32]byte, msg *Cover, txhash comm
 		return "", SkillResponse{}, err
 	}
 
-	cover, err := GetCoverPosition(db, w, gameKey)
-	if err != nil {
-		logger.LogError(fmt.Sprintf("[backend] there is no cover  %s: %s", gameKey, err.Error()))
-		return "", SkillResponse{}, err
-	}
+	var newFields []data.Field;
 
-	newFields := cover.Raw
-	if cardOwner == cover.Player { //nolint:gocritic
-		newFields[0] = data.Field{Key: "coverOneCard", Data: data.NewBytesField(cardID[:])}
-		newFields[1] = data.Field{Key: "coverOnePlayer", Data: owner.Data}
-	} else if cardOwner == cover.Player2 {
-		newFields[2] = data.Field{Key: "coverTowCard", Data: data.NewBytesField(cardID[:])}
-		newFields[3] = data.Field{Key: "coverTowPlayer", Data: owner.Data}
-	} else if cover.Player == emptyString {
-		newFields[0] = data.Field{Key: "coverOneCard", Data: data.NewBytesField(cardID[:])}
-		newFields[1] = data.Field{Key: "coverOnePlayer", Data: owner.Data}
-	} else if cover.Player2 == emptyString {
-		newFields[2] = data.Field{Key: "coverTowCard", Data: data.NewBytesField(cardID[:])}
-		newFields[3] = data.Field{Key: "coverTowPlayer", Data: owner.Data}
+	cover, err := GetCoverPosition(db, w, gameKey)
+	if err == nil {
+		newFields = cover.Raw
+		if cardOwner == cover.Player { //nolint:gocritic
+			newFields[0] = data.Field{Key: "coverOneCard", Data: data.NewBytesField(cardID[:])}
+			newFields[1] = data.Field{Key: "coverOnePlayer", Data: owner.Data}
+		} else if cardOwner == cover.Player2 {
+			newFields[2] = data.Field{Key: "coverTowCard", Data: data.NewBytesField(cardID[:])}
+			newFields[3] = data.Field{Key: "coverTowPlayer", Data: owner.Data}
+		} else if cover.Player == emptyString {
+			newFields[0] = data.Field{Key: "coverOneCard", Data: data.NewBytesField(cardID[:])}
+			newFields[1] = data.Field{Key: "coverOnePlayer", Data: owner.Data}
+		} else if cover.Player2 == emptyString {
+			newFields[2] = data.Field{Key: "coverTowCard", Data: data.NewBytesField(cardID[:])}
+			newFields[3] = data.Field{Key: "coverTowPlayer", Data: owner.Data}
+		}
+	} else {
+		newFields = []data.Field{
+			data.Field{Key: "coverOneCard", Data: data.NewBytesField(cardID[:])},
+			data.Field{Key: "coverOnePlayer", Data: owner.Data},
+			 data.Field{Key: "coverTowCard", Data: data.NewBytesField(EmptyBytes())},
+			 data.Field{Key: "coverTowPlayer", Data: data.NewBytesField(EmptyBytes())},
+		 }
 	}
 
 	events := []data.MudEvent{
@@ -127,36 +135,39 @@ func CoverHandler(authenticated bool, walletID int, walletAddress string, db *da
 		return "", SkillResponse{}, fmt.Errorf("user not authenticated")
 	}
 
-	logger.LogDebug("[backend] processing attack request")
+	logger.LogDebug("[backend] processing cover request")
 
 	var msg Cover
 	err := json.Unmarshal(p, &msg)
 	if err != nil {
 		logger.LogError(fmt.Sprintf("[backend] error decoding attack message: %s", err))
-		return "", SkillResponse{}, nil
+		return "", SkillResponse{}, err
 	}
 
 	cardID, err := dbconnector.StringToSlice(msg.CardID)
 	if err != nil {
 		logger.LogDebug(fmt.Sprintf("[backend] error creating transaction to attack a card: %s", err))
-		return "", SkillResponse{}, nil
+		return "", SkillResponse{}, err
 	}
 
 	valid, err := validateCover(db, cardID, walletAddress)
 	if err != nil || !valid {
-		return "", SkillResponse{}, nil
+		if err != nil{
+			logger.LogInfo(fmt.Sprintf("[test] error on validation %s",err.Error()))
+		}
+		return "", SkillResponse{}, fmt.Errorf("invalid cover")
 	}
 
 	txhash, err := txbuilder.SendTransaction(walletID, "cover", cardID)
 	if err != nil {
 		// TODO: send response saying that the game could not be created
 		logger.LogDebug(fmt.Sprintf("[backend] error creating transaction to attack: %s", err))
-		return "", SkillResponse{}, nil
+		return "", SkillResponse{}, err
 	}
 
 	gameID, response, err := coverPrediction(db, cardID, &msg, txhash)
 	if err != nil {
-		logger.LogDebug(fmt.Sprintf("[backend] error prediction attack: %s", err))
+		logger.LogDebug(fmt.Sprintf("[backend] error prediction cover: %s", err))
 		return "", SkillResponse{}, err
 	}
 

@@ -123,8 +123,8 @@ func GetBoard(db *data.Database, w *data.World, matchID string) *data.MatchData 
 		// Position
 		p, err := GetCardPosition(db, w, card)
 		if err != nil {
-			logger.LogInfo(fmt.Sprintf("[backend] get position error %s", err.Error()))
-			return nil
+			p.X = 99
+			p.Y = 99
 		}
 
 		if p.X == -2 && p.Y == -2 {

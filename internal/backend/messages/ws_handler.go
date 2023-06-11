@@ -211,6 +211,7 @@ func (g *GlobalState) WsHandler(ws *WebSocketContainer) {
 		case "cover":
 			gameID, response, err := actions.CoverHandler(ws.Authenticated, ws.WalletID, ws.WalletAddress, g.Database, p)
 			if err != nil {
+				logger.LogError(fmt.Sprintf("[test] cover failed %s", err.Error()))
 				return
 			}
 			broadcastResponse(g, gameID, response)
@@ -222,6 +223,8 @@ func (g *GlobalState) WsHandler(ws *WebSocketContainer) {
 
 func broadcastResponse(g *GlobalState, gameID string, response interface{}) {
 	w := g.Database.GetWorld(actions.WorldID)
+
+	logger.LogInfo(fmt.Sprintf("[test] trying to send to player in game %s", gameID))
 
 	_, playerOne, err := actions.GetPlayerOneFromGame(g.Database, w, gameID)
 	if err != nil {

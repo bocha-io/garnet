@@ -32,7 +32,7 @@ export interface IWorldInterface extends utils.Interface {
   functions: {
     "attack(bytes32,uint32,uint32)": FunctionFragment;
     "call(bytes16,bytes16,bytes)": FunctionFragment;
-    "cover(bytes32,uint32,uint32)": FunctionFragment;
+    "cover(bytes32)": FunctionFragment;
     "creatematch()": FunctionFragment;
     "deleteRecord(bytes32,bytes32[])": FunctionFragment;
     "deleteRecord(bytes16,bytes16,bytes32[])": FunctionFragment;
@@ -160,11 +160,7 @@ export interface IWorldInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "cover",
-    values: [
-      PromiseOrValue<BytesLike>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>
-    ]
+    values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "creatematch",
@@ -813,8 +809,6 @@ export interface IWorld extends BaseContract {
 
     cover(
       cardKey: PromiseOrValue<BytesLike>,
-      newX: PromiseOrValue<BigNumberish>,
-      newY: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -1181,8 +1175,6 @@ export interface IWorld extends BaseContract {
 
   cover(
     cardKey: PromiseOrValue<BytesLike>,
-    newX: PromiseOrValue<BigNumberish>,
-    newY: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1549,8 +1541,6 @@ export interface IWorld extends BaseContract {
 
     cover(
       cardKey: PromiseOrValue<BytesLike>,
-      newX: PromiseOrValue<BigNumberish>,
-      newY: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1962,8 +1952,6 @@ export interface IWorld extends BaseContract {
 
     cover(
       cardKey: PromiseOrValue<BytesLike>,
-      newX: PromiseOrValue<BigNumberish>,
-      newY: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -2331,8 +2319,6 @@ export interface IWorld extends BaseContract {
 
     cover(
       cardKey: PromiseOrValue<BytesLike>,
-      newX: PromiseOrValue<BigNumberish>,
-      newY: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

@@ -52,6 +52,8 @@ contract JoinMatchSystem is System {
                 AbilityType.set(cardKey, AbilityTypes.DrainSword);
             } else if (j == 2) {
                 AbilityType.set(cardKey, AbilityTypes.Sidestep);
+            } else if (j == 5) {
+                AbilityType.set(cardKey, AbilityTypes.Cover);
             }
         }
 
