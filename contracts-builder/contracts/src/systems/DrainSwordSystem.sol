@@ -108,7 +108,7 @@ contract DrainSwordSystem is System {
             // DEAD
             CurrentHp.set(attackedKey, 0);
             Position.set(attackedKey, true, gameKeyGenerated, 99, 99);
-            if (isBase != 0) {
+            if (attackedKey != cover && isBase != 0) {
                 // TODO: delete everything
                 PlayerOne.deleteRecord(gameKeyGenerated);
                 PlayerTwo.deleteRecord(gameKeyGenerated);
