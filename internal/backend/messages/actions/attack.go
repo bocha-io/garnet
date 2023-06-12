@@ -37,6 +37,12 @@ func validateAttack(db *data.Database, cardID [32]byte, msg *Attack, walletAddre
 		return false, err
 	}
 
+	_, base, err := GetBaseFromCard(db, w, attackedKey)
+	if err == nil {
+		logger.LogDebug("[backend] the card is attacking the base")
+		attackedKey = base
+	}
+
 	_, attackedOwner, err := GetCardOwnerWithString(db, w, attackedKey)
 	if err != nil {
 		logger.LogError("[backend] could not find the onwer of the attacked card")
