@@ -149,7 +149,7 @@ func drainSwordPrediction(db *data.Database, cardID [32]byte, msg *DrainSword, t
 			Table: "CurrentMana",
 			Key:   gameKey,
 			Fields: []data.Field{
-				{Key: "value", Data: data.UintField{Data: *big.NewInt(currentMana - attackManaCost)}},
+				{Key: "value", Data: data.UintField{Data: *big.NewInt(currentMana - drainSwordManaCost)}},
 			},
 		},
 	}

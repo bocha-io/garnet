@@ -234,7 +234,7 @@ func whirlwindAxePrediction(db *data.Database, cardID [32]byte, msg *WhirlwindAx
 		MsgType:        "whirlwindaxeresponse",
 		CardIDAttacker: msg.CardID,
 		Player:         cardOwner,
-		LeftOverMana:   currentMana - attackManaCost,
+		LeftOverMana:   currentMana - whirlwindAxeManaCost,
 	}
 
 	return gameKey, response, nil

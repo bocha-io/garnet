@@ -250,7 +250,7 @@ func piercingShotPrediction(db *data.Database, cardID [32]byte, msg *PiercingSho
 		MsgType:        "piercingshotresponse",
 		CardIDAttacker: msg.CardID,
 		Player:         cardOwner,
-		LeftOverMana:   currentMana - attackManaCost,
+		LeftOverMana:   currentMana - piercingShotManaCost,
 	}
 
 	return gameKey, response, nil

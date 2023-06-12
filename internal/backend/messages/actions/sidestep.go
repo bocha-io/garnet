@@ -204,7 +204,7 @@ func sidestepPrediction(db *data.Database, cardID [32]byte, msg *Sidestep, txhas
 			},
 		},
 		Player:       cardOwner,
-		LeftOverMana: currentMana - drainSwordManaCost,
+		LeftOverMana: currentMana - sidestepManaCost,
 	}
 
 	return gameKey, response, nil

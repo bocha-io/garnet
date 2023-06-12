@@ -189,7 +189,7 @@ func meteorPrediction(db *data.Database, cardID [32]byte, msg *Meteor, txhash co
 			CurrentHp:      currentHp - attackDmg,
 		}},
 		Player:       cardOwner,
-		LeftOverMana: currentMana - attackManaCost,
+		LeftOverMana: currentMana - meteorManaCost,
 	}
 
 	return gameKey, response, nil
