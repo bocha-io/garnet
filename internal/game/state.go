@@ -44,7 +44,7 @@ const (
 
 type GameState struct { //nolint: revive
 	MatchState           *MatchState
-	ListOfAvailableGames []string
+	ListOfAvailableGames []messages.Match
 	Ws                   *websocket.Conn
 	Connected            bool
 	Username             string
@@ -56,7 +56,7 @@ type GameState struct { //nolint: revive
 	currentScreen                string
 	lastDBUpdate                 time.Time // Last time we got new available games
 	lastRenderUpdate             time.Time // Last time we updated the displayed list of games
-	listOfAvailableGamesToRender []string
+	listOfAvailableGamesToRender []messages.Match
 	yOffset                      int
 	BoardStatus                  *data.MatchData
 	lastBoardStatusUpdate        time.Time
@@ -69,7 +69,7 @@ type GameState struct { //nolint: revive
 func NewGameState(ui *gocui.Gui, username string, password string) *GameState {
 	return &GameState{
 		MatchState:           nil,
-		ListOfAvailableGames: []string{},
+		ListOfAvailableGames: []messages.Match{},
 		Ws:                   nil,
 		Connected:            false,
 		Username:             username,
@@ -79,7 +79,7 @@ func NewGameState(ui *gocui.Gui, username string, password string) *GameState {
 		keyPressed:                   "",
 		currentScreen:                "",
 		lastDBUpdate:                 time.Unix(0, 1),
-		listOfAvailableGamesToRender: []string{},
+		listOfAvailableGamesToRender: []messages.Match{},
 		yOffset:                      0,
 		lastRenderUpdate:             time.Unix(0, 0),
 		BoardStatus:                  nil,

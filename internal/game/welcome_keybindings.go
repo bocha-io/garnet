@@ -294,13 +294,13 @@ func (gs *GameState) UpdateMatches() {
 					// fmt.Fprintln(v, gui.ColorMagenta("Tables Info:"))
 					temp := []string{}
 					for i := gs.yOffset; i < end; i++ {
-						temp = append(temp, gs.listOfAvailableGamesToRender[i])
+						temp = append(temp, gs.listOfAvailableGamesToRender[i].Id)
 					}
 					RenderWelcomeTable(
 						temp,
 						v,
 						gs.yOffset != 0,
-						temp[len(temp)-1] != gs.listOfAvailableGamesToRender[len(gs.listOfAvailableGamesToRender)-1],
+						temp[len(temp)-1] != gs.listOfAvailableGamesToRender[len(gs.listOfAvailableGamesToRender)-1].Id,
 					)
 					return nil
 				})

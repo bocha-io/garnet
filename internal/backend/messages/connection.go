@@ -111,9 +111,13 @@ func (g *GlobalState) BroadcastUpdates() {
 							} else {
 								t := w.GetTableByName("Match")
 								if t != nil {
-									ret := []string{}
+									ret := []Match{}
 									for k := range *t.Rows {
-										ret = append(ret, k)
+										_, playerOne, err := actions.GetPlayerOneFromGame(g.Database, w, k)
+										if err != nil {
+											continue
+										}
+										ret = append(ret, Match{Id: k, Creator: playerOne})
 									}
 									msg := MatchList{MsgType: "matchlist", Matches: ret}
 									err := v.Conn.WriteJSON(msg)

@@ -47,9 +47,14 @@ type Attack struct {
 	Y       int64  `json:"y"`
 }
 
+type Match struct {
+	Id      string `json:"id"`
+	Creator string `json:"creator"`
+}
+
 type MatchList struct {
-	MsgType string   `json:"msgtype"`
-	Matches []string `json:"matches"`
+	MsgType string  `json:"msgtype"`
+	Matches []Match `json:"matches"`
 }
 
 type GetMatchStatus struct {
