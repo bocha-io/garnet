@@ -67,9 +67,7 @@ func (g *GlobalState) WsHandler(ws *WebSocketContainer) {
 
 			matchData := actions.GetBoardStatus(g.Database, actions.WorldID, ws.WalletAddress)
 			if matchData != nil {
-				// TODO: save the user and wallet somewhere
-				matchData.PlayerOneUsermane = "user1"
-				matchData.PlayerTwoUsermane = "user2"
+				logger.LogInfo(fmt.Sprintf("[test] names %s %s", matchData.PlayerOneUsermane, matchData.PlayerTwoUsermane))
 				msgToSend := BoardStatus{MsgType: "boardstatus", Status: *matchData}
 				logger.LogDebug(fmt.Sprintf("[backend] sending match info %s to %s", matchData.MatchID, ws.User))
 				err := ws.Conn.WriteJSON(msgToSend)

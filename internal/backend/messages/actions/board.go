@@ -5,6 +5,7 @@ import (
 
 	"github.com/bocha-io/garnet/internal/indexer/data"
 	"github.com/bocha-io/garnet/internal/logger"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
 const baseType = 6
@@ -20,12 +21,36 @@ func GetBoard(db *data.Database, w *data.World, matchID string) *data.MatchData 
 	}
 	ret.PlayerOne = playerOne
 
+	_, playerOneName, err := GetUserName(db, w, playerOne)
+	if err != nil {
+		logger.LogError("[backend] match does not have a player one")
+		return nil
+	}
+	temp, err := hexutil.Decode(playerOneName)
+	if err != nil {
+		logger.LogError("[backend] could not decode players name")
+		return nil
+	}
+	ret.PlayerOneUsermane = string(temp)
+
 	_, playerTwo, err := GetPlayerTwoFromGame(db, w, matchID)
 	if err != nil {
 		logger.LogError("[backend] match does not have a player one")
 		return nil
 	}
 	ret.PlayerTwo = playerTwo
+
+	_, playerTwoName, err := GetUserName(db, w, playerTwo)
+	if err != nil {
+		logger.LogError("[backend] match does not have a player one")
+		return nil
+	}
+	temp, err = hexutil.Decode(playerTwoName)
+	if err != nil {
+		logger.LogError("[backend] could not decode players name")
+		return nil
+	}
+	ret.PlayerTwoUsermane = string(temp)
 
 	// CurrentTurn
 	currentTurn, err := GetCurrentTurnFromGame(db, w, matchID)

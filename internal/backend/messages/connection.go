@@ -96,9 +96,7 @@ func (g *GlobalState) BroadcastUpdates() {
 						if v.Conn != nil {
 							matchData := actions.GetBoardStatus(g.Database, actions.WorldID, v.WalletAddress)
 							if matchData != nil {
-								// TODO: save the user and wallet somewhere
-								matchData.PlayerOneUsermane = "user1"
-								matchData.PlayerTwoUsermane = "user2"
+								logger.LogInfo(fmt.Sprintf("[test] names %s %s", matchData.PlayerOneUsermane, matchData.PlayerTwoUsermane))
 								msgToSend := BoardStatus{MsgType: "boardstatus", Status: *matchData}
 								logger.LogDebug(fmt.Sprintf("[backend] sending match info %s to %s", matchData.MatchID, v.User))
 								err := v.Conn.WriteJSON(msgToSend)

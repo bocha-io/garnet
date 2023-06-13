@@ -42,6 +42,10 @@ func GetPlayerTwoFromGame(db *data.Database, w *data.World, gameID string) (data
 	return dbconnector.GetRowFromIDUsingString(db, w, gameID, "PlayerTwo")
 }
 
+func GetUserName(db *data.Database, w *data.World, userID string) (data.Field, string, error) {
+	return dbconnector.GetRowFromIDUsingString(db, w, userID, "User")
+}
+
 // GetPlacedCardsFromGame returns p1cards, p2cards, error
 func GetPlacedCardsFromGame(db *data.Database, w *data.World, gameID string) (int64, int64, error) {
 	row, err := dbconnector.GetRowFieldsUsingString(db, w, gameID, "PlacedCards")
