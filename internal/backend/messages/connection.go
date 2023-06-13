@@ -116,6 +116,13 @@ func (g *GlobalState) BroadcastUpdates() {
 										if err != nil {
 											continue
 										}
+
+										_, _, err = actions.GetPlayerTwoFromGame(g.Database, w, k)
+										if err == nil {
+											// Ignore games if it has 2 players
+											continue
+										}
+
 										_, playerOneName, err := actions.GetUserName(g.Database, w, playerOne)
 										if err != nil {
 											logger.LogError("[backend] match does not have a player one")
@@ -126,6 +133,7 @@ func (g *GlobalState) BroadcastUpdates() {
 											logger.LogError("[backend] could not decode players name")
 											continue
 										}
+
 										ret = append(ret, Match{Id: k, Creator: string(temp)})
 									}
 									msg := MatchList{MsgType: "matchlist", Matches: ret}
