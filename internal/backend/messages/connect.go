@@ -47,7 +47,7 @@ func connectMessage(ws *WebSocketContainer, usersDB *database.InMemoryDatabase, 
 			return fmt.Errorf("error sending the signup request: %s", err.Error())
 		}
 		if res.StatusCode != http.StatusOK {
-			return fmt.Errorf("incorrect response: %d", r.Response.StatusCode)
+			return fmt.Errorf("incorrect response: %d", res.StatusCode)
 		}
 
 		// return fmt.Errorf("incorrect credentials")

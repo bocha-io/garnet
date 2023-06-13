@@ -86,7 +86,9 @@ func RegisterEndpoint(response http.ResponseWriter, request *http.Request, db *d
 		return
 	}
 
-	if registationRequest.Username == "" || registationRequest.Password == "" {
+	// TODO: empty password removed for demo
+	// if registationRequest.Username == "" || registationRequest.Password == "" {
+	if registationRequest.Username == "" {
 		SendBadRequestResponse("invalid params", &response)
 		return
 	}
