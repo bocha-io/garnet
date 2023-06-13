@@ -10,6 +10,7 @@ import (
 	"github.com/bocha-io/garnet/internal/database"
 	"github.com/bocha-io/garnet/internal/indexer/data"
 	"github.com/bocha-io/garnet/internal/logger"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/gorilla/websocket"
 )
 
@@ -115,7 +116,17 @@ func (g *GlobalState) BroadcastUpdates() {
 										if err != nil {
 											continue
 										}
-										ret = append(ret, Match{Id: k, Creator: playerOne})
+										_, playerOneName, err := actions.GetUserName(g.Database, w, playerOne)
+										if err != nil {
+											logger.LogError("[backend] match does not have a player one")
+											continue
+										}
+										temp, err := hexutil.Decode(playerOneName)
+										if err != nil {
+											logger.LogError("[backend] could not decode players name")
+											continue
+										}
+										ret = append(ret, Match{Id: k, Creator: string(temp)})
 									}
 									msg := MatchList{MsgType: "matchlist", Matches: ret}
 									err := v.Conn.WriteJSON(msg)
