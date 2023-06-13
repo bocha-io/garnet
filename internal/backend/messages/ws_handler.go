@@ -61,6 +61,10 @@ func (g *GlobalState) WsHandler(ws *WebSocketContainer) {
 				panic("world not found")
 			}
 
+			if err := ws.Conn.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf(`{"msgtype":"userwallet","wallet":"%s"}`, ws.WalletAddress))); err != nil {
+				panic("could not send the board status")
+			}
+
 			matchData := actions.GetBoardStatus(g.Database, actions.WorldID, ws.WalletAddress)
 			if matchData != nil {
 				// TODO: save the user and wallet somewhere
