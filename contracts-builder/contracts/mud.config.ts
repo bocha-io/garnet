@@ -146,5 +146,15 @@ export default mudConfig({
       root: true,
       args: [resolveTableId("User")],
     },
+    {
+      name: "KeysWithValueModule",
+      root: true,
+      args: [resolveTableId("PlayerOne")],
+    },
+    {
+      name: "KeysWithValueModule",
+      root: true,
+      args: [resolveTableId("PlayerTwo")],
+    },
   ],
 });

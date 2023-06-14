@@ -2,9 +2,10 @@
 pragma solidity >=0.8.0;
 
 import {System} from "@latticexyz/world/src/System.sol";
+import {getKeysWithValue} from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 import {Match} from "../codegen/tables/Match.sol";
-import {PlayerOne} from "../codegen/tables/PlayerOne.sol";
-import {PlayerTwo} from "../codegen/tables/PlayerTwo.sol";
+import {PlayerOne, PlayerOneTableId} from "../codegen/tables/PlayerOne.sol";
+import {PlayerTwo, PlayerTwoTableId} from "../codegen/tables/PlayerTwo.sol";
 import {CurrentTurn} from "../codegen/tables/CurrentTurn.sol";
 import {CurrentPlayer} from "../codegen/tables/CurrentPlayer.sol";
 import {CurrentMana} from "../codegen/tables/CurrentMana.sol";
@@ -97,8 +98,10 @@ contract JoinMatchSystem is System {
         require(PlayerTwo.get(key) == 0, "player 2 already set");
 
         bytes32 player2 = addressToEntityKey(_msgSender());
-        require(PlayerOne.get(player2) == 0, "the player is already in a game");
-        require(PlayerTwo.get(player2) == 0, "the player is already in a game");
+        bytes32[] memory playerOneKeys = getKeysWithValue(PlayerOneTableId, PlayerOne.encode(player2));
+        require(playerOneKeys.length == 0, "the player is already in a game");
+        bytes32[] memory playerTwoKeys = getKeysWithValue(PlayerTwoTableId, PlayerTwo.encode(player2));
+        require(playerTwoKeys.length == 0, "the player is already in a game");
 
         // This may no longer be required because we are validating that the sender is not in a game
         require(player2 != player1, "player 1 and 2 must be different");
