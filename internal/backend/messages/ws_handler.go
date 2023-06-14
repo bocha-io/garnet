@@ -133,7 +133,7 @@ func (g *GlobalState) WsHandler(ws *WebSocketContainer) {
 			err := json.Unmarshal(p, &msg)
 			if err != nil {
 				logger.LogError(fmt.Sprintf("[backend] error decoding join match message: %s", err))
-				return
+				// return
 			}
 
 			logger.LogDebug(fmt.Sprintf("[backend] creating join match tx: %s", msg.MatchID))
@@ -142,12 +142,12 @@ func (g *GlobalState) WsHandler(ws *WebSocketContainer) {
 			if err != nil {
 				// TODO: send response saying that the game could not be created
 				logger.LogDebug(fmt.Sprintf("[backend] error creating transaction to join match: %s", err))
-				return
+				// return
 			}
 
 			if len(id) != 32 {
 				logger.LogDebug("[backend] error creating transaction to join match: invalid length")
-				return
+				// return
 			}
 
 			// It must be array instead of slice
@@ -158,7 +158,7 @@ func (g *GlobalState) WsHandler(ws *WebSocketContainer) {
 			if err != nil {
 				// TODO: send response saying that the game could not be created
 				logger.LogDebug(fmt.Sprintf("[backend] error creating transaction to join match: %s", err))
-				return
+				// return
 			}
 			// g.Database.AddTxSent(txhash.Hex())
 
