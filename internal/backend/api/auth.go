@@ -74,6 +74,8 @@ func RegisterEndpoint(response http.ResponseWriter, request *http.Request, db *d
 	if cors.SetHandlerCorsForOptions(request, &response) {
 		return
 	}
+	db.MuRegister.Lock()
+	defer db.MuRegister.Unlock()
 
 	var registationRequest RegistationParams
 

@@ -16,14 +16,16 @@ type User struct {
 }
 
 type InMemoryDatabase struct {
-	Users *map[string]User
-	mu    *sync.Mutex
+	Users      *map[string]User
+	mu         *sync.Mutex
+	MuRegister *sync.Mutex
 }
 
 func NewInMemoryDatabase() *InMemoryDatabase {
 	return &InMemoryDatabase{
-		Users: &map[string]User{},
-		mu:    &sync.Mutex{},
+		Users:      &map[string]User{},
+		mu:         &sync.Mutex{},
+		MuRegister: &sync.Mutex{},
 	}
 }
 

@@ -94,10 +94,13 @@ contract JoinMatchSystem is System {
 
         bytes32 player1 = PlayerOne.get(key);
         require(PlayerOne.get(key) != 0, "player 1 is not set");
+        require(PlayerTwo.get(key) == 0, "player 2 already set");
 
         bytes32 player2 = addressToEntityKey(_msgSender());
-        require(PlayerTwo.get(key) == 0, "player 2 already set");
-        // TODO: uncomment this so the player 2 is not the same as player 1
+        require(PlayerOne.get(player2) == 0, "the player is already in a game");
+        require(PlayerTwo.get(player2) == 0, "the player is already in a game");
+
+        // This may no longer be required because we are validating that the sender is not in a game
         require(player2 != player1, "player 1 and 2 must be different");
         PlayerTwo.set(key, player2);
 
