@@ -1,0 +1,6 @@
+.DS_Store
+build
+*.log
+wsdata.md
+wstester
+indexerlogs.txt
