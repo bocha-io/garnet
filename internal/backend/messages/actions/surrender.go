@@ -33,11 +33,12 @@ func validateSurrender(db *data.Database, gameID [32]byte, walletAddress string)
 		return false, err
 	}
 
-	if !strings.Contains(playerOne, walletAddress) || !strings.Contains(playerTwo, walletAddress) {
-		logger.LogError(fmt.Sprintf("[backend] player %s is not in this game", walletAddress))
-		return false, fmt.Errorf("player not in game")
+	if strings.Contains(playerOne, walletAddress) || strings.Contains(playerTwo, walletAddress) {
+		return true, nil
 	}
-	return true, nil
+
+	logger.LogError(fmt.Sprintf("[backend] player %s is not in this game", walletAddress))
+	return false, fmt.Errorf("player not in game")
 }
 
 func SurrenderHandler(authenticated bool, walletID int, walletAddress string, db *data.Database, p []byte) (string, SurrenderResponse, error) {
