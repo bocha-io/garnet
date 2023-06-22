@@ -26,6 +26,10 @@ export default mudConfig({
       name: "endturn",
       openAccess: true,
     },
+    SurrenderSystem: {
+      name: "surrender",
+      openAccess: true,
+    },
     RegisterSystem: {
       name: "register",
       openAccess: true,

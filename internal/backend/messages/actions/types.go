@@ -114,3 +114,16 @@ type EndTurnResponse struct {
 	Mana    int64  `json:"mana"`
 	Turn    int64  `json:"turn"`
 }
+
+type Surrender struct {
+	UUID    string `json:"uuid"`
+	MsgType string `json:"msgtype"`
+	MatchID string `json:"id"`
+}
+
+type SurrenderResponse struct {
+	UUID          string `json:"uuid"`
+	MsgType       string `json:"msgtype"`
+	Loser         string `json:"loser"`
+	LoserUsername string `json:"loserusername"`
+}

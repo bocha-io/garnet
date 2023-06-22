@@ -81,6 +81,14 @@ func GetCurrentPlayerFromGame(db *data.Database, w *data.World, gameID string) (
 	return dbconnector.GetRowFromIDUsingString(db, w, gameID, "CurrentPlayer")
 }
 
+func IsMatchCreated(db *data.Database, w *data.World, gameID string) bool {
+	_, value, err := dbconnector.GetRowFromIDUsingString(db, w, gameID, "Match")
+	if err != nil || value != "true" {
+		return false
+	}
+	return true
+}
+
 func GetCardInPosition(db *data.Database, w *data.World, gameID string, x int64, y int64) (string, error) {
 	table := w.GetTableByName("Position")
 	rows := db.GetRows(table)

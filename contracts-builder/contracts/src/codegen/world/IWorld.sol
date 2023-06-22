@@ -17,6 +17,7 @@ import { IPiercingShotSystem } from "./IPiercingShotSystem.sol";
 import { IPlaceCardSystem } from "./IPlaceCardSystem.sol";
 import { IRegisterSystem } from "./IRegisterSystem.sol";
 import { ISidestepSystem } from "./ISidestepSystem.sol";
+import { ISurrenderSystem } from "./ISurrenderSystem.sol";
 import { IWhirlwindAxeSystem } from "./IWhirlwindAxeSystem.sol";
 
 /**
@@ -37,6 +38,7 @@ interface IWorld is
   IPlaceCardSystem,
   IRegisterSystem,
   ISidestepSystem,
+  ISurrenderSystem,
   IWhirlwindAxeSystem
 {
 

@@ -1472,6 +1472,19 @@ const _abi = [
     inputs: [
       {
         internalType: "bytes32",
+        name: "key",
+        type: "bytes32",
+      },
+    ],
+    name: "surrender",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
         name: "matchKey",
         type: "bytes32",
       },

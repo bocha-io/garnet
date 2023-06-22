@@ -169,6 +169,15 @@ func (g *GlobalState) WsHandler(ws *WebSocketContainer) {
 			}
 			broadcastResponse(g, gameID, response)
 			g.Database.LastUpdate = time.Now()
+
+		case "surrender":
+			gameID, response, err := actions.EndturnHandler(ws.Authenticated, ws.WalletID, ws.WalletAddress, g.Database, p)
+			if err != nil {
+				return
+			}
+			broadcastResponse(g, gameID, response)
+			g.Database.LastUpdate = time.Now()
+
 		case "movecard":
 			gameID, response, err := actions.MoveHandler(ws.Authenticated, ws.WalletID, ws.WalletAddress, g.Database, p)
 			if err != nil {

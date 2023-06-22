@@ -79,6 +79,7 @@ export interface IWorldInterface extends utils.Interface {
     "setRecord(bytes16,bytes16,bytes32[],bytes)": FunctionFragment;
     "setRecord(bytes32,bytes32[],bytes)": FunctionFragment;
     "sidestep(bytes32,uint32,uint32)": FunctionFragment;
+    "surrender(bytes32)": FunctionFragment;
     "updateCards(bytes32)": FunctionFragment;
     "updateInField(bytes32,bytes32[],uint8,uint256,bytes)": FunctionFragment;
     "updateInField(bytes16,bytes16,bytes32[],uint8,uint256,bytes)": FunctionFragment;
@@ -136,6 +137,7 @@ export interface IWorldInterface extends utils.Interface {
       | "setRecord(bytes16,bytes16,bytes32[],bytes)"
       | "setRecord(bytes32,bytes32[],bytes)"
       | "sidestep"
+      | "surrender"
       | "updateCards"
       | "updateInField(bytes32,bytes32[],uint8,uint256,bytes)"
       | "updateInField(bytes16,bytes16,bytes32[],uint8,uint256,bytes)"
@@ -496,6 +498,10 @@ export interface IWorldInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "surrender",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "updateCards",
     values: [PromiseOrValue<BytesLike>]
   ): string;
@@ -679,6 +685,7 @@ export interface IWorldInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "sidestep", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "surrender", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "updateCards",
     data: BytesLike
@@ -1129,6 +1136,11 @@ export interface IWorld extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    surrender(
+      key: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     updateCards(
       matchKey: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1495,6 +1507,11 @@ export interface IWorld extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  surrender(
+    key: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   updateCards(
     matchKey: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1856,6 +1873,11 @@ export interface IWorld extends BaseContract {
       cardKey: PromiseOrValue<BytesLike>,
       newX: PromiseOrValue<BigNumberish>,
       newY: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    surrender(
+      key: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -2272,6 +2294,11 @@ export interface IWorld extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    surrender(
+      key: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     updateCards(
       matchKey: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2636,6 +2663,11 @@ export interface IWorld extends BaseContract {
       cardKey: PromiseOrValue<BytesLike>,
       newX: PromiseOrValue<BigNumberish>,
       newY: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    surrender(
+      key: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
