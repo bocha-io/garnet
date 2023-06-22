@@ -8,7 +8,6 @@ import {System} from "@latticexyz/world/src/System.sol";
 import {Match} from "../codegen/tables/Match.sol";
 import {PlayerOne} from "../codegen/tables/PlayerOne.sol";
 import {PlayerTwo} from "../codegen/tables/PlayerTwo.sol";
-import {CurrentPlayer} from "../codegen/tables/CurrentPlayer.sol";
 import {addressToEntityKey} from "../addressToEntityKey.sol";
 
 contract SurrenderSystem is System {
@@ -16,11 +15,13 @@ contract SurrenderSystem is System {
         bool value = Match.get(key);
         require(value, "match not found");
 
-        bytes32 currentPlayer = CurrentPlayer.get(key);
-        require(addressToEntityKey(_msgSender()) == currentPlayer, "current player must be the sender");
+        bytes32 sender = addressToEntityKey(_msgSender());
 
         bytes32 playerTwo = PlayerTwo.get(key);
         bytes32 playerOne = PlayerOne.get(key);
+        require(
+            playerOne == sender || playerTwo == sender, "you are trying to surrender a game that you are not part of it"
+        );
 
         PlayerOne.deleteRecord(key);
         PlayerTwo.deleteRecord(key);

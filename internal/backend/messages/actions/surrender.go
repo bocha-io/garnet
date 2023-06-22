@@ -22,15 +22,20 @@ func validateSurrender(db *data.Database, gameID [32]byte, walletAddress string)
 		return false, fmt.Errorf("match does not exist")
 	}
 
-	_, currentPlayer, err := GetCurrentPlayerFromGame(db, w, gameKey)
+	_, playerOne, err := GetPlayerOneFromGame(db, w, gameKey)
 	if err != nil {
-		logger.LogError(fmt.Sprintf("[backend] failed to get the current player %s: %s", gameKey, err.Error()))
+		logger.LogError(fmt.Sprintf("[backend] failed to get the player one %s: %s", gameKey, err.Error()))
+		return false, err
+	}
+	_, playerTwo, err := GetPlayerTwoFromGame(db, w, gameKey)
+	if err != nil {
+		logger.LogError(fmt.Sprintf("[backend] failed to get the player two %s: %s", gameKey, err.Error()))
 		return false, err
 	}
 
-	if !strings.Contains(currentPlayer, walletAddress) {
-		logger.LogError(fmt.Sprintf("[backend] current player different from player (%s, %s)", currentPlayer, walletAddress))
-		return false, fmt.Errorf("not player turn")
+	if !strings.Contains(playerOne, walletAddress) || !strings.Contains(playerTwo, walletAddress) {
+		logger.LogError(fmt.Sprintf("[backend] player %s is not in this game", walletAddress))
+		return false, fmt.Errorf("player not in game")
 	}
 	return true, nil
 }
