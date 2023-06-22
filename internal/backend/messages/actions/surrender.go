@@ -3,14 +3,12 @@ package actions
 import (
 	"encoding/json"
 	"fmt"
-	"math/big"
 	"strings"
 
 	"github.com/bocha-io/garnet/internal/backend/messages/dbconnector"
 	"github.com/bocha-io/garnet/internal/indexer/data"
 	"github.com/bocha-io/garnet/internal/logger"
 	"github.com/bocha-io/garnet/internal/txbuilder"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 

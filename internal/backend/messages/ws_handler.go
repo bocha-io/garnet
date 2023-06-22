@@ -171,7 +171,7 @@ func (g *GlobalState) WsHandler(ws *WebSocketContainer) {
 			g.Database.LastUpdate = time.Now()
 
 		case "surrender":
-			gameID, response, err := actions.EndturnHandler(ws.Authenticated, ws.WalletID, ws.WalletAddress, g.Database, p)
+			gameID, response, err := actions.SurrenderHandler(ws.Authenticated, ws.WalletID, ws.WalletAddress, g.Database, p)
 			if err != nil {
 				return
 			}
