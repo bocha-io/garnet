@@ -48,8 +48,9 @@ type Attack struct {
 }
 
 type Match struct {
-	Id      string `json:"id"`
-	Creator string `json:"creator"`
+	Id        string `json:"id"`
+	Creator   string `json:"creator"`
+	PlayerTwo string `json:"playertwo"`
 }
 
 type MatchList struct {

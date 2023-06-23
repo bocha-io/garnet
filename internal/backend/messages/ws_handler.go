@@ -84,12 +84,23 @@ func (g *GlobalState) WsHandler(ws *WebSocketContainer) {
 							continue
 						}
 
-						_, _, err = actions.GetPlayerTwoFromGame(g.Database, w, k)
+						// Player Two logic
+						playerTwoValue := []byte{}
+						_, playerTwo, err := actions.GetPlayerTwoFromGame(g.Database, w, k)
 						if err == nil {
-							// Ignore games if it has 2 players
-							continue
+							_, playerTwoName, err := actions.GetUserName(g.Database, w, playerTwo)
+							if err != nil {
+								logger.LogError("[backend] could not find player name")
+								continue
+							}
+							playerTwoValue, err = hexutil.Decode(playerTwoName)
+							if err != nil {
+								logger.LogError("[backend] could not decode players name")
+								continue
+							}
 						}
 
+						// PlayerOne values
 						_, playerOneName, err := actions.GetUserName(g.Database, w, playerOne)
 						if err != nil {
 							logger.LogError("[backend] match does not have a player one")
@@ -100,7 +111,8 @@ func (g *GlobalState) WsHandler(ws *WebSocketContainer) {
 							logger.LogError("[backend] could not decode players name")
 							continue
 						}
-						ret = append(ret, Match{Id: k, Creator: string(temp)})
+
+						ret = append(ret, Match{Id: k, Creator: string(temp), PlayerTwo: string(playerTwoValue)})
 					}
 					msg := MatchList{MsgType: "matchlist", Matches: ret}
 					err := ws.Conn.WriteJSON(msg)
