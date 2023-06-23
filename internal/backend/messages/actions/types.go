@@ -101,6 +101,19 @@ type MoveCardResponse struct {
 	LeftOverMana int64  `json:"leftovermana"`
 }
 
+type Spectate struct {
+	UUID    string `json:"uuid"`
+	MsgType string `json:"msgtype"`
+	MatchID string `json:"id"`
+}
+
+type SpectateResponse struct {
+	UUID    string `json:"uuid"`
+	MsgType string `json:"msgtype"`
+	Value   bool   `json:"value"`
+	MatchID string `json:"id"`
+}
+
 type EndTurn struct {
 	UUID    string `json:"uuid"`
 	MsgType string `json:"msgtype"`

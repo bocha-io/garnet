@@ -18,8 +18,8 @@ func writeMessage(ws *websocket.Conn, msg *string) error {
 }
 
 func removeConnection(ws *WebSocketContainer, g *GlobalState) {
-	ws.Conn.Close()
 	delete(g.WsSockets, ws.User)
+	ws.Conn.Close()
 }
 
 func (g *GlobalState) WsHandler(ws *WebSocketContainer) {
@@ -249,6 +249,45 @@ func (g *GlobalState) WsHandler(ws *WebSocketContainer) {
 			broadcastResponse(g, gameID, response)
 			g.Database.LastUpdate = time.Now()
 
+		case "spectate":
+			if !ws.Authenticated {
+				return
+			}
+			logger.LogDebug("[backend] processing spectate")
+			var msg actions.Spectate
+			err := json.Unmarshal(p, &msg)
+			if err != nil {
+				logger.LogError(fmt.Sprintf("[backend] error decoding spectate message: %s", err))
+				return
+			}
+			g.addSpectator(msg.MatchID, ws.User)
+			msgResp := actions.SpectateResponse{
+				UUID:    msg.UUID,
+				MsgType: "spectateresponse",
+				MatchID: msg.MatchID,
+				Value:   true,
+			}
+			_ = ws.Conn.WriteJSON(msgResp)
+
+		case "unspectate":
+			if !ws.Authenticated {
+				return
+			}
+			logger.LogDebug("[backend] processing unspectate")
+			var msg actions.Spectate
+			err := json.Unmarshal(p, &msg)
+			if err != nil {
+				logger.LogError(fmt.Sprintf("[backend] error decoding spectate message: %s", err))
+				return
+			}
+			g.rmSpectator(msg.MatchID, ws.User)
+			msgResp := actions.SpectateResponse{
+				UUID:    msg.UUID,
+				MsgType: "unspectateresponse",
+				MatchID: msg.MatchID,
+				Value:   false,
+			}
+			_ = ws.Conn.WriteJSON(msgResp)
 		}
 	}
 }
@@ -288,4 +327,7 @@ func broadcastResponse(g *GlobalState, gameID string, response interface{}) {
 			}
 		}
 	}
+
+	// Spectators
+	g.boardcastToSpectators(gameID, response)
 }

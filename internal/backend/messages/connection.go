@@ -1,8 +1,10 @@
 package messages
 
 import (
+	"container/list"
 	"fmt"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/bocha-io/garnet/internal/backend/cors"
@@ -37,9 +39,65 @@ type GlobalState struct {
 	done              chan (struct{})
 	WalletIndex       map[string]string
 	WsSockets         map[string]*WebSocketContainer
+	Spectators        *map[string]*[]string
+	spectatorsMutex   *sync.Mutex
 	UsersDatabase     *database.InMemoryDatabase
 	Database          *data.Database
 	LastBroadcastTime time.Time
+}
+
+func (g *GlobalState) addSpectator(gameID, userID string) {
+	g.spectatorsMutex.Lock()
+	defer g.spectatorsMutex.Unlock()
+	if v, ok := (*g.Spectators)[gameID]; ok {
+		temp := append(*v, userID)
+		(*g.Spectators)[gameID] = &temp
+	} else {
+		(*g.Spectators)[gameID] = &[]string{userID}
+	}
+}
+
+func (g *GlobalState) rmSpectator(gameID, userID string) {
+	g.spectatorsMutex.Lock()
+	defer g.spectatorsMutex.Unlock()
+	if v, ok := (*g.Spectators)[gameID]; ok {
+		found := -1
+		for k, user := range *v {
+			if user == userID {
+				found = k
+				break
+			}
+		}
+
+		if found != -1 {
+			var temp []string
+			if len(*v)-1 <= found {
+				temp = (*v)[0:found]
+			} else {
+				temp = append((*v)[0:found], (*v)[found+1:len(*v)-1]...)
+			}
+			(*g.Spectators)[gameID] = &temp
+			return
+		}
+	}
+}
+
+func (g *GlobalState) boardcastToSpectators(gameID string, response interface{}) {
+	spectators, ok := (*g.Spectators)[gameID]
+	if !ok {
+		return
+	}
+
+	for _, v := range *spectators {
+		if ws, ok := g.WsSockets[v]; ok {
+			err := ws.Conn.WriteJSON(response)
+			if err != nil {
+				logger.LogError(fmt.Sprintf("[backend] error sending spectator update to %s", v))
+			} else {
+				logger.LogDebug(fmt.Sprintf("[backend] sending spectator update to %s", v))
+			}
+		}
+	}
 }
 
 func NewGlobalState(database *data.Database, usersDatabase *database.InMemoryDatabase) GlobalState {
