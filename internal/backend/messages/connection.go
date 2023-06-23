@@ -49,8 +49,17 @@ func (g *GlobalState) addSpectator(gameID, userID string) {
 	g.spectatorsMutex.Lock()
 	defer g.spectatorsMutex.Unlock()
 	if v, ok := (*g.Spectators)[gameID]; ok {
-		temp := append(*v, userID)
-		(*g.Spectators)[gameID] = &temp
+		found := false
+		for _, user := range *v {
+			if user == userID {
+				found = true
+				break
+			}
+		}
+		if !found {
+			temp := append(*v, userID)
+			(*g.Spectators)[gameID] = &temp
+		}
 	} else {
 		(*g.Spectators)[gameID] = &[]string{userID}
 	}
