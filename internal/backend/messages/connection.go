@@ -100,10 +100,13 @@ func (g *GlobalState) boardcastToSpectators(gameID string, response interface{})
 }
 
 func NewGlobalState(database *data.Database, usersDatabase *database.InMemoryDatabase) GlobalState {
+	temp := make(map[string]*[]string)
 	return GlobalState{
 		done:              make(chan struct{}),
 		WalletIndex:       make(map[string]string),
 		WsSockets:         make(map[string]*WebSocketContainer),
+		Spectators:        &temp,
+		spectatorsMutex:   &sync.Mutex{},
 		UsersDatabase:     usersDatabase,
 		Database:          database,
 		LastBroadcastTime: time.Now(),
