@@ -281,6 +281,21 @@ func (g *GlobalState) WsHandler(ws *WebSocketContainer) {
 			}
 			_ = ws.Conn.WriteJSON(msgResp)
 
+			w, ok := g.Database.Worlds[actions.WorldID]
+			if !ok {
+				logger.LogError("[backend] world not found")
+				return
+			}
+
+			matchData := actions.GetBoard(g.Database, w, msg.MatchID)
+			if matchData != nil {
+				msgToSend := BoardStatus{MsgType: "boardstatus", Status: *matchData}
+				err := ws.Conn.WriteJSON(msgToSend)
+				if err != nil {
+					return
+				}
+			}
+
 		case "unspectate":
 			if !ws.Authenticated {
 				return
