@@ -4,6 +4,7 @@ import (
 	"context"
 	"math/big"
 	"time"
+	"fmt"
 
 	"github.com/bocha-io/garnet/x/indexer/data"
 	"github.com/bocha-io/garnet/x/indexer/eth"
@@ -34,8 +35,16 @@ func Process(endpoint string, database *data.Database, quit *bool) {
 		// TODO: retry instead of panic
 		panic("")
 	}
+       startingHeight := 0
+       endHeight := height
 
-	eth.ProcessBlocks(c, database, nil, big.NewInt(int64(height)))
+       if height > uint64(startingHeight)+500 {
+	       endHeight = uint64(startingHeight) + 500
+       }
+
+       eth.ProcessBlocks(c, database, big.NewInt(int64(startingHeight)), big.NewInt(int64(endHeight)))
+
+	// eth.ProcessBlocks(c, database, nil, big.NewInt(int64(height)))
 
 	for !*quit {
 		newHeight, err := c.BlockNumber(context.Background())
@@ -45,13 +54,21 @@ func Process(endpoint string, database *data.Database, quit *bool) {
 			panic("")
 		}
 
-		if newHeight != height {
-			eth.ProcessBlocks(c, database, big.NewInt(int64(height)), big.NewInt(int64(newHeight)))
-			height = newHeight
+	      if newHeight != endHeight {
+		       startingHeight = int(endHeight)
+		       endHeight = uint64(newHeight)
+
+		       if newHeight > uint64(startingHeight)+500 {
+			       endHeight = uint64(startingHeight) + 500
+		       }
+
+		      logger.LogInfo(fmt.Sprintf("Heights: %d %d", startingHeight, endHeight))
+
+		       eth.ProcessBlocks(c, database, big.NewInt(int64(startingHeight)), big.NewInt(int64(endHeight)))
 		}
 
 		database.LastHeight = newHeight
 
-		time.Sleep(1 * time.Second)
+		time.Sleep(100 * time.Millisecond)
 	}
 }
