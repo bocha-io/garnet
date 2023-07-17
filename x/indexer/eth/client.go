@@ -24,6 +24,11 @@ func GetEthereumClient(wsURL string) *ethclient.Client {
 	return client
 }
 
+type UnconfirmedTransaction struct {
+	Txhash string
+	Events *[]data.MudEvent
+}
+
 func ProcessBlocks(c *ethclient.Client, db *data.Database, initBlockHeight *big.Int, endBlockHeight *big.Int) {
 	logs, err := c.FilterLogs(context.Background(), QueryForStoreLogs(initBlockHeight, endBlockHeight))
 	if err != nil {
@@ -34,14 +39,26 @@ func ProcessBlocks(c *ethclient.Client, db *data.Database, initBlockHeight *big.
 	logs = OrderLogs(logs)
 	logger.LogInfo(fmt.Sprintf("[indexer] processing logs up to %d", endBlockHeight))
 
+	processedTxns := map[string]*UnconfirmedTransaction{}
+
 	for _, v := range logs {
-		for k, txsent := range db.UnconfirmedTransactions {
-			if v.TxHash.Hex() == txsent.Txhash {
-				logger.LogInfo(fmt.Sprintf("[indexer] procesing tx from mempool with hash %s", txsent))
-				db.UnconfirmedTransactions = append(db.UnconfirmedTransactions[:k], db.UnconfirmedTransactions[k+1:]...)
-				break
+		found := false
+		if _, ok := processedTxns[v.TxHash.Hex()]; ok {
+			found = true
+		} else {
+			for k, txsent := range db.UnconfirmedTransactions {
+				if v.TxHash.Hex() == txsent.Txhash {
+					logger.LogInfo(fmt.Sprintf("[indexer] procesing tx from mempool with hash %s", txsent))
+					db.UnconfirmedTransactions = append(db.UnconfirmedTransactions[:k], db.UnconfirmedTransactions[k+1:]...)
+					//nolint:exportloopref // we are breaking the loop after this line so it is not an error
+					processedTxns[txsent.Txhash] = &UnconfirmedTransaction{Txhash: txsent.Txhash, Events: &txsent.Events}
+					found = true
+					break
+				}
 			}
 		}
+
+		var logMudEvent data.MudEvent
 
 		if v.Topics[0].Hex() == mudhelpers.GetStoreAbiEventID("StoreSetRecord").Hex() {
 			event, err := mudhandlers.ParseStoreSetRecord(v)
@@ -59,7 +76,7 @@ func ProcessBlocks(c *ethclient.Client, db *data.Database, initBlockHeight *big.
 				mudhandlers.HandleMetadataTableEvent(event, db)
 			default:
 				logger.LogInfo("[indexer] processing a generic table event like adding a row")
-				mudhandlers.HandleGenericTableEvent(event, db)
+				logMudEvent = mudhandlers.HandleGenericTableEvent(event, db)
 			}
 		}
 
@@ -69,7 +86,7 @@ func ProcessBlocks(c *ethclient.Client, db *data.Database, initBlockHeight *big.
 			if err != nil {
 				logger.LogError(fmt.Sprintf("[indexer] error decoding message for store set field:%s\n", err))
 			} else {
-				mudhandlers.HandleSetFieldEvent(event, db)
+				logMudEvent = mudhandlers.HandleSetFieldEvent(event, db)
 			}
 		}
 		if v.Topics[0].Hex() == mudhelpers.GetStoreAbiEventID("StoreDeleteRecord").Hex() {
@@ -78,8 +95,45 @@ func ProcessBlocks(c *ethclient.Client, db *data.Database, initBlockHeight *big.
 			if err != nil {
 				logger.LogError(fmt.Sprintf("[indexer] error decoding message for store delete record:%s\n", err))
 			} else {
-				mudhandlers.HandleDeleteRecordEvent(event, db)
+				logMudEvent = mudhandlers.HandleDeleteRecordEvent(event, db)
 			}
+		}
+
+		if found {
+			fmt.Printf("validating table:%s, key:%s\n", logMudEvent.Table, logMudEvent.Key)
+			for i, event := range *processedTxns[v.TxHash.Hex()].Events {
+				if logMudEvent.Table == event.Table && logMudEvent.Key == event.Key {
+
+					for j, field := range event.Fields {
+						if logMudEvent.Fields[j].Data.String() != field.Data.String() {
+							fmt.Printf("%s != %s, for table %s, id %s\n", logMudEvent.Fields[j].Data.String(), field.Data.String(), logMudEvent.Table, logMudEvent.Key)
+							panic("the prediction was wrong!")
+						}
+					}
+
+					temp := *processedTxns[v.TxHash.Hex()].Events
+
+					//nolint:gocritic
+					if len(temp) == 1 {
+						temp = []data.MudEvent{}
+					} else if len(temp) == i {
+						temp = temp[:i]
+					} else {
+						temp = append(temp[:i], temp[i+1:]...)
+					}
+
+					processedTxns[v.TxHash.Hex()].Events = &temp
+					break
+				}
+			}
+		}
+
+	}
+
+	for _, v := range processedTxns {
+		if len(*v.Events) > 0 {
+			fmt.Printf("events not processed %s %s %s", v.Txhash, (*v.Events)[0].Table, (*v.Events)[0].Key)
+			panic("events were not proccessed")
 		}
 	}
 }

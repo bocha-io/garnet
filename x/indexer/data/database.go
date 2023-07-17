@@ -199,6 +199,10 @@ func (db *Database) GetRow(table *Table, key string) ([]Field, error) {
 		return fields, nil
 	}
 
+	return db.GetRowNoMempool(table, key)
+}
+
+func (db *Database) GetRowNoMempool(table *Table, key string) ([]Field, error) {
 	// Look for the value in the database
 	v, ok := (*table.Rows)[key]
 	if ok {
