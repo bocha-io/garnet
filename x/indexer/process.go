@@ -2,9 +2,9 @@ package indexer
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 	"time"
-	"fmt"
 
 	"github.com/bocha-io/garnet/x/indexer/data"
 	"github.com/bocha-io/garnet/x/indexer/eth"
@@ -35,14 +35,14 @@ func Process(endpoint string, database *data.Database, quit *bool) {
 		// TODO: retry instead of panic
 		panic("")
 	}
-       startingHeight := 0
-       endHeight := height
+	startingHeight := 0
+	endHeight := height
 
-       if height > uint64(startingHeight)+500 {
-	       endHeight = uint64(startingHeight) + 500
-       }
+	if height > uint64(startingHeight)+500 {
+		endHeight = uint64(startingHeight) + 500
+	}
 
-       eth.ProcessBlocks(c, database, big.NewInt(int64(startingHeight)), big.NewInt(int64(endHeight)))
+	eth.ProcessBlocks(c, database, big.NewInt(int64(startingHeight)), big.NewInt(int64(endHeight)))
 
 	// eth.ProcessBlocks(c, database, nil, big.NewInt(int64(height)))
 
@@ -54,17 +54,17 @@ func Process(endpoint string, database *data.Database, quit *bool) {
 			panic("")
 		}
 
-	      if newHeight != endHeight {
-		       startingHeight = int(endHeight)
-		       endHeight = uint64(newHeight)
+		if newHeight != endHeight {
+			startingHeight = int(endHeight)
+			endHeight = newHeight
 
-		       if newHeight > uint64(startingHeight)+500 {
-			       endHeight = uint64(startingHeight) + 500
-		       }
+			if newHeight > uint64(startingHeight)+500 {
+				endHeight = uint64(startingHeight) + 500
+			}
 
-		      logger.LogInfo(fmt.Sprintf("Heights: %d %d", startingHeight, endHeight))
+			logger.LogInfo(fmt.Sprintf("Heights: %d %d", startingHeight, endHeight))
 
-		       eth.ProcessBlocks(c, database, big.NewInt(int64(startingHeight)), big.NewInt(int64(endHeight)))
+			eth.ProcessBlocks(c, database, big.NewInt(int64(startingHeight)), big.NewInt(int64(endHeight)))
 		}
 
 		database.LastHeight = newHeight

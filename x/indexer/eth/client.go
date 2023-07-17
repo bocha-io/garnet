@@ -50,6 +50,7 @@ func ProcessBlocks(c *ethclient.Client, db *data.Database, initBlockHeight *big.
 				if v.TxHash.Hex() == txsent.Txhash {
 					logger.LogInfo(fmt.Sprintf("[indexer] procesing tx from mempool with hash %s", txsent))
 					db.UnconfirmedTransactions = append(db.UnconfirmedTransactions[:k], db.UnconfirmedTransactions[k+1:]...)
+					//nolint:exportloopref // we are breaking the loop after this line so it is not an error
 					processedTxns[txsent.Txhash] = &UnconfirmedTransaction{Txhash: txsent.Txhash, Events: &txsent.Events}
 					found = true
 					break
@@ -99,7 +100,6 @@ func ProcessBlocks(c *ethclient.Client, db *data.Database, initBlockHeight *big.
 		}
 
 		if found {
-			// w := db.GetWorld("0x5FbDB2315678afecb367f032d93F642f64180aa3")
 			fmt.Printf("validating table:%s, key:%s\n", logMudEvent.Table, logMudEvent.Key)
 			for i, event := range *processedTxns[v.TxHash.Hex()].Events {
 				if logMudEvent.Table == event.Table && logMudEvent.Key == event.Key {
@@ -113,6 +113,7 @@ func ProcessBlocks(c *ethclient.Client, db *data.Database, initBlockHeight *big.
 
 					temp := *processedTxns[v.TxHash.Hex()].Events
 
+					//nolint:gocritic
 					if len(temp) == 1 {
 						temp = []data.MudEvent{}
 					} else if len(temp) == i {
@@ -120,21 +121,11 @@ func ProcessBlocks(c *ethclient.Client, db *data.Database, initBlockHeight *big.
 					} else {
 						temp = append(temp[:i], temp[i+1:]...)
 					}
+
 					processedTxns[v.TxHash.Hex()].Events = &temp
 					break
 				}
 			}
-			// for _, v := range found.Events {
-			// 	t := w.GetTableByName(v.Table)
-			// 	dbValues, _ := db.GetRowNoMempool(t, v.Key)
-			// 	fmt.Printf("validating table:%s, key:%s, len db: %d, len prediction: %d\n", v.Table, v.Key, len(dbValues), len(v.Fields))
-			// 	for i := range v.Fields {
-			// 		if dbValues[i].Data.String() != v.Fields[i].Data.String() {
-			// 			fmt.Printf("%s != %s, for table %s, id %s\n", dbValues[i].Data.String(), v.Fields[i].Data.String(), v.Table, v.Key)
-			// 			panic("the prediction was wrong!")
-			// 		}
-			// 	}
-			// }
 		}
 
 	}
