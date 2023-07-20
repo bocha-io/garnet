@@ -81,6 +81,8 @@ type Database struct {
 	ChainID                 string
 	UnconfirmedTransactions []UnconfirmedTransaction
 	txSentMutex             *sync.Mutex
+
+	defaultWorld string
 }
 
 func NewDatabase() *Database {
@@ -93,6 +95,8 @@ func NewDatabase() *Database {
 		// TODO: use a list instead of array
 		UnconfirmedTransactions: []UnconfirmedTransaction{},
 		txSentMutex:             &sync.Mutex{},
+		// Helper for games
+		defaultWorld: "",
 	}
 }
 
@@ -116,6 +120,17 @@ func (db *Database) AddEvent(tableName string, key string, fields *[]Field) {
 	}
 	db.Events = append(db.Events, Event{Table: tableName, Row: key, Value: value})
 	db.LastUpdate = time.Now()
+}
+
+func (db *Database) SetDefaultWorld(worldID string) {
+	db.defaultWorld = worldID
+}
+
+func (db *Database) GetDefaultWorld() *World {
+	if db.defaultWorld == "" {
+		return nil
+	}
+	return db.GetWorld(db.defaultWorld)
 }
 
 func (db *Database) GetWorld(worldID string) *World {
