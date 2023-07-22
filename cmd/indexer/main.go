@@ -6,7 +6,7 @@ import (
 
 	"github.com/bocha-io/garnet/x/indexer"
 	"github.com/bocha-io/garnet/x/indexer/data"
-	"github.com/bocha-io/garnet/x/logger"
+	"github.com/bocha-io/logger"
 )
 
 func main() {

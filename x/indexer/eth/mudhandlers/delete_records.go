@@ -5,7 +5,7 @@ import (
 
 	"github.com/bocha-io/garnet/x/indexer/data"
 	"github.com/bocha-io/garnet/x/indexer/data/mudhelpers"
-	"github.com/bocha-io/garnet/x/logger"
+	"github.com/bocha-io/logger"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"go.uber.org/zap"
 )

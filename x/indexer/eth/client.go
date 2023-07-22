@@ -8,7 +8,7 @@ import (
 	"github.com/bocha-io/garnet/x/indexer/data"
 	"github.com/bocha-io/garnet/x/indexer/data/mudhelpers"
 	"github.com/bocha-io/garnet/x/indexer/eth/mudhandlers"
-	"github.com/bocha-io/garnet/x/logger"
+	"github.com/bocha-io/logger"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
@@ -106,7 +106,7 @@ func ProcessBlocks(c *ethclient.Client, db *data.Database, initBlockHeight *big.
 
 					for j, field := range event.Fields {
 						if logMudEvent.Fields[j].Data.String() != field.Data.String() {
-							fmt.Printf("%s != %s, for table %s, id %s\n", logMudEvent.Fields[j].Data.String(), field.Data.String(), logMudEvent.Table, logMudEvent.Key)
+							fmt.Printf("fieldA:%s.fieldB:%s. %s != %s, for table %s, id %s\n", logMudEvent.Fields[j].Key, field.Key, logMudEvent.Fields[j].Data.String(), field.Data.String(), logMudEvent.Table, logMudEvent.Key)
 							panic("the prediction was wrong!")
 						}
 					}
