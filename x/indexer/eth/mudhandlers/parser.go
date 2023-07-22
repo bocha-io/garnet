@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/bocha-io/garnet/x/indexer/data/mudhelpers"
-	"github.com/bocha-io/garnet/x/logger"
+	"github.com/bocha-io/logger"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/core/types"
 )

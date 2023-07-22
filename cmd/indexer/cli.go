@@ -8,7 +8,7 @@ import (
 
 	"github.com/bocha-io/garnet/internal/gui"
 	"github.com/bocha-io/garnet/x/indexer/data"
-	"github.com/bocha-io/garnet/x/logger"
+	"github.com/bocha-io/logger"
 	"github.com/jroimartin/gocui"
 )
 
