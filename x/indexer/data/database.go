@@ -83,6 +83,8 @@ type Database struct {
 	txSentMutex             *sync.Mutex
 
 	defaultWorld string
+
+	updateHandler *func(table string, key string, fields *[]Field)
 }
 
 func NewDatabase() *Database {
@@ -97,7 +99,14 @@ func NewDatabase() *Database {
 		txSentMutex:             &sync.Mutex{},
 		// Helper for games
 		defaultWorld: "",
+
+		// handleUpdates
+		updateHandler: nil,
 	}
+}
+
+func (db *Database) SetUpdateHandler(handler func(table string, key string, fields *[]Field)) {
+	db.updateHandler = &handler
 }
 
 func (db *Database) AddTxSent(tx UnconfirmedTransaction) {
@@ -107,6 +116,10 @@ func (db *Database) AddTxSent(tx UnconfirmedTransaction) {
 }
 
 func (db *Database) AddEvent(tableName string, key string, fields *[]Field) {
+	if db.updateHandler != nil {
+		(*db.updateHandler)(tableName, key, fields)
+	}
+
 	value := ""
 	if fields != nil {
 		value = "{"
@@ -118,6 +131,8 @@ func (db *Database) AddEvent(tableName string, key string, fields *[]Field) {
 		}
 		value += "}"
 	}
+
+	// TODO: limit this to 10 events to avoid memory leak
 	db.Events = append(db.Events, Event{Table: tableName, Row: key, Value: value})
 	db.LastUpdate = time.Now()
 }
