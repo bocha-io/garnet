@@ -233,6 +233,10 @@ func (db *Database) GetRow(table *Table, key string) ([]Field, error) {
 }
 
 func (db *Database) GetRowNoMempool(table *Table, key string) ([]Field, error) {
+	// Table will be nil when you query the table by name and its metadata was not set yet
+	if table == nil {
+		return []Field{}, fmt.Errorf("table not found")
+	}
 	// Look for the value in the database
 	v, ok := (*table.Rows)[key]
 	if ok {
