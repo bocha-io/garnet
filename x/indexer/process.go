@@ -17,7 +17,7 @@ import (
 //     c.PendingTransactionCount()
 // }
 
-func Process(endpoint string, database *data.Database, quit *bool) {
+func Process(endpoint string, database *data.Database, quit *bool, startingHeight uint64, sleepDuration time.Duration) {
 	logger.LogInfo("indexer is starting...")
 	c := eth.GetEthereumClient(endpoint)
 	ctx := context.Background()
@@ -35,16 +35,14 @@ func Process(endpoint string, database *data.Database, quit *bool) {
 		// TODO: retry instead of panic
 		panic("")
 	}
-	startingHeight := 0
+
 	endHeight := height
 
-	if height > uint64(startingHeight)+500 {
-		endHeight = uint64(startingHeight) + 500
+	if height > startingHeight+500 {
+		endHeight = startingHeight + 500
 	}
 
 	eth.ProcessBlocks(c, database, big.NewInt(int64(startingHeight)), big.NewInt(int64(endHeight)))
-
-	// eth.ProcessBlocks(c, database, nil, big.NewInt(int64(height)))
 
 	for !*quit {
 		newHeight, err := c.BlockNumber(context.Background())
@@ -55,11 +53,11 @@ func Process(endpoint string, database *data.Database, quit *bool) {
 		}
 
 		if newHeight != endHeight {
-			startingHeight = int(endHeight)
+			startingHeight = endHeight
 			endHeight = newHeight
 
-			if newHeight > uint64(startingHeight)+500 {
-				endHeight = uint64(startingHeight) + 500
+			if newHeight > startingHeight+500 {
+				endHeight = startingHeight + 500
 			}
 
 			logger.LogInfo(fmt.Sprintf("Heights: %d %d", startingHeight, endHeight))
@@ -69,6 +67,6 @@ func Process(endpoint string, database *data.Database, quit *bool) {
 
 		database.LastHeight = newHeight
 
-		time.Sleep(100 * time.Millisecond)
+		time.Sleep(sleepDuration)
 	}
 }

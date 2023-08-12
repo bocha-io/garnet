@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/bocha-io/garnet/x/indexer"
 	"github.com/bocha-io/garnet/x/indexer/data"
@@ -22,7 +23,7 @@ func main() {
 	// Index the database
 	quit := false
 	database := data.NewDatabase()
-	go indexer.Process(os.Args[1], database, &quit)
+	go indexer.Process(os.Args[1], database, &quit, 0, 100*time.Millisecond)
 
 	// Set up the GUI
 	ui := NewDebugUI()
