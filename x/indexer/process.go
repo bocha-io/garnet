@@ -38,8 +38,8 @@ func Process(endpoint string, database *data.Database, quit *bool, startingHeigh
 
 	endHeight := height
 
-	if height > uint64(startingHeight)+500 {
-		endHeight = uint64(startingHeight) + 500
+	if height > startingHeight+500 {
+		endHeight = startingHeight + 500
 	}
 
 	eth.ProcessBlocks(c, database, big.NewInt(int64(startingHeight)), big.NewInt(int64(endHeight)))
@@ -56,8 +56,8 @@ func Process(endpoint string, database *data.Database, quit *bool, startingHeigh
 			startingHeight = endHeight
 			endHeight = newHeight
 
-			if newHeight > uint64(startingHeight)+500 {
-				endHeight = uint64(startingHeight) + 500
+			if newHeight > startingHeight+500 {
+				endHeight = startingHeight + 500
 			}
 
 			logger.LogInfo(fmt.Sprintf("Heights: %d %d", startingHeight, endHeight))
