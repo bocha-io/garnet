@@ -251,8 +251,8 @@ func (db *Database) GetRows(table *Table) map[string][]Field {
 	ret := map[string][]Field{}
 	for k, v := range *table.Rows {
 		temp := make([]Field, len(v))
-		copy(temp[:], v)
-		ret[k] = temp[:]
+		copy(temp, v)
+		ret[k] = temp
 	}
 
 	for _, v := range db.UnconfirmedTransactions {
