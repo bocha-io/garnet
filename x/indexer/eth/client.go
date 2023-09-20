@@ -49,9 +49,9 @@ func ProcessBlocks(c *ethclient.Client, db *data.Database, initBlockHeight *big.
 			for k, txsent := range db.UnconfirmedTransactions {
 				if v.TxHash.Hex() == txsent.Txhash {
 					logger.LogInfo(fmt.Sprintf("[indexer] procesing tx from mempool with hash %s", txsent))
+					temp := db.UnconfirmedTransactions[k]
 					db.UnconfirmedTransactions = append(db.UnconfirmedTransactions[:k], db.UnconfirmedTransactions[k+1:]...)
-					t := db.UnconfirmedTransactions[k]
-					processedTxns[t.Txhash] = &UnconfirmedTransaction{Txhash: t.Txhash, Events: &t.Events}
+					processedTxns[temp.Txhash] = &UnconfirmedTransaction{Txhash: temp.Txhash, Events: &temp.Events}
 					found = true
 					break
 				}
