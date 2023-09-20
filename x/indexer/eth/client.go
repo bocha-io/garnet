@@ -34,7 +34,7 @@ func ProcessBlocks(c *ethclient.Client, db *data.Database, initBlockHeight *big.
 	if err != nil {
 		// TODO: add retry in case of failure instead of panic
 		logger.LogError("[indexer] error filtering blocks")
-		panic("")
+		panic(err.Error())
 	}
 	logs = OrderLogs(logs)
 	logger.LogInfo(fmt.Sprintf("[indexer] processing logs up to %d", endBlockHeight))

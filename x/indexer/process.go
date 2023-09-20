@@ -25,7 +25,7 @@ func Process(endpoint string, database *data.Database, quit *bool, startingHeigh
 	if err != nil {
 		logger.LogError("could not get the latest height")
 		// TODO: retry instead of panic
-		panic("")
+		panic(err.Error())
 	}
 	database.ChainID = chainID.String()
 
@@ -33,13 +33,15 @@ func Process(endpoint string, database *data.Database, quit *bool, startingHeigh
 	if err != nil {
 		logger.LogError("could not get the latest height")
 		// TODO: retry instead of panic
-		panic("")
+		panic(err.Error())
 	}
 
 	endHeight := height
 
-	if height > startingHeight+500 {
-		endHeight = startingHeight + 500
+	amountOfBlocks := uint64(500)
+
+	if height > startingHeight+amountOfBlocks {
+		endHeight = startingHeight + amountOfBlocks
 	}
 
 	eth.ProcessBlocks(c, database, big.NewInt(int64(startingHeight)), big.NewInt(int64(endHeight)))
@@ -49,15 +51,15 @@ func Process(endpoint string, database *data.Database, quit *bool, startingHeigh
 		if err != nil {
 			logger.LogError("could not get the latest height")
 			// TODO: retry instead of panic
-			panic("")
+			panic(err.Error())
 		}
 
 		if newHeight != endHeight {
 			startingHeight = endHeight
 			endHeight = newHeight
 
-			if newHeight > startingHeight+500 {
-				endHeight = startingHeight + 500
+			if newHeight > startingHeight+amountOfBlocks {
+				endHeight = startingHeight + amountOfBlocks
 			}
 
 			logger.LogInfo(fmt.Sprintf("Heights: %d %d", startingHeight, endHeight))
