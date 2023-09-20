@@ -50,8 +50,8 @@ func ProcessBlocks(c *ethclient.Client, db *data.Database, initBlockHeight *big.
 				if v.TxHash.Hex() == txsent.Txhash {
 					logger.LogInfo(fmt.Sprintf("[indexer] procesing tx from mempool with hash %s", txsent))
 					db.UnconfirmedTransactions = append(db.UnconfirmedTransactions[:k], db.UnconfirmedTransactions[k+1:]...)
-					//nolint:exportloopref // we are breaking the loop after this line so it is not an error
-					processedTxns[txsent.Txhash] = &UnconfirmedTransaction{Txhash: txsent.Txhash, Events: &txsent.Events}
+					t := db.UnconfirmedTransactions[k]
+					processedTxns[t.Txhash] = &UnconfirmedTransaction{Txhash: t.Txhash, Events: &t.Events}
 					found = true
 					break
 				}
