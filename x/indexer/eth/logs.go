@@ -48,12 +48,10 @@ func QueryForStoreLogs(initBlockHeight *big.Int, endBlockHeight *big.Int) ethere
 	return ethereum.FilterQuery{
 		FromBlock: initBlockHeight,
 		ToBlock:   endBlockHeight,
-		// Topics:    [][]common.Hash{{}},
 		Topics: [][]common.Hash{{
 			mudhelpers.GetStoreAbiEventID("StoreSetRecord"),
 			mudhelpers.GetStoreAbiEventID("StoreSetField"),
 			mudhelpers.GetStoreAbiEventID("StoreDeleteRecord"),
 		}},
-		Addresses: []common.Address{},
 	}
 }
