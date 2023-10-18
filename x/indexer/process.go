@@ -6,6 +6,7 @@ import (
 	"math/big"
 	"time"
 
+	"github.com/bocha-io/ethclient/x/ethclient"
 	"github.com/bocha-io/garnet/x/indexer/data"
 	"github.com/bocha-io/garnet/x/indexer/eth"
 	"github.com/bocha-io/logger"
@@ -19,25 +20,12 @@ import (
 
 func Process(endpoint string, database *data.Database, quit *bool, startingHeight uint64, sleepDuration time.Duration) {
 	logger.LogInfo("indexer is starting...")
-	c := eth.GetEthereumClient(endpoint)
-	ctx := context.Background()
-	chainID, err := c.ChainID(ctx)
-	if err != nil {
-		logger.LogError("could not get the latest height")
-		// TODO: retry instead of panic
-		panic(err.Error())
-	}
-	database.ChainID = chainID.String()
+	c := ethclient.NewClient(context.Background(), endpoint, 5)
+	database.ChainID = c.ChainID().String()
 
-	height, err := c.BlockNumber(context.Background())
-	if err != nil {
-		logger.LogError("could not get the latest height")
-		// TODO: retry instead of panic
-		panic(err.Error())
-	}
+	height := c.BlockNumber()
 
 	endHeight := height
-
 	amountOfBlocks := uint64(500)
 
 	if height > startingHeight+amountOfBlocks {
@@ -47,12 +35,7 @@ func Process(endpoint string, database *data.Database, quit *bool, startingHeigh
 	eth.ProcessBlocks(c, database, big.NewInt(int64(startingHeight)), big.NewInt(int64(endHeight)))
 
 	for !*quit {
-		newHeight, err := c.BlockNumber(context.Background())
-		if err != nil {
-			logger.LogError("could not get the latest height")
-			// TODO: retry instead of panic
-			panic(err.Error())
-		}
+		newHeight := c.BlockNumber()
 
 		if newHeight != endHeight {
 			startingHeight = endHeight

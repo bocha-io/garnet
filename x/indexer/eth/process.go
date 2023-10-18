@@ -1,41 +1,23 @@
 package eth
 
 import (
-	"context"
 	"fmt"
 	"math/big"
 
+	"github.com/bocha-io/ethclient/x/ethclient"
 	"github.com/bocha-io/garnet/x/indexer/data"
 	"github.com/bocha-io/garnet/x/indexer/data/mudhelpers"
 	"github.com/bocha-io/garnet/x/indexer/eth/mudhandlers"
 	"github.com/bocha-io/logger"
-	"github.com/ethereum/go-ethereum/ethclient"
 )
-
-func GetEthereumClient(wsURL string) *ethclient.Client {
-	var client *ethclient.Client
-	var err error
-	client, err = ethclient.Dial(wsURL)
-	if err != nil {
-		// TODO: add retry in case of failure instead of panic
-		logger.LogError("[indexer] could not connect to the ethereum client")
-		panic("")
-	}
-	return client
-}
 
 type UnconfirmedTransaction struct {
 	Txhash string
 	Events *[]data.MudEvent
 }
 
-func ProcessBlocks(c *ethclient.Client, db *data.Database, initBlockHeight *big.Int, endBlockHeight *big.Int) {
-	logs, err := c.FilterLogs(context.Background(), QueryForStoreLogs(initBlockHeight, endBlockHeight))
-	if err != nil {
-		// TODO: add retry in case of failure instead of panic
-		logger.LogError("[indexer] error filtering blocks")
-		panic(err.Error())
-	}
+func ProcessBlocks(c *ethclient.EthClient, db *data.Database, initBlockHeight *big.Int, endBlockHeight *big.Int) {
+	logs := c.FilterLogs(QueryForStoreLogs(initBlockHeight, endBlockHeight))
 	logs = OrderLogs(logs)
 	logger.LogInfo(fmt.Sprintf("[indexer] processing logs up to %d", endBlockHeight))
 
