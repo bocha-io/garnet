@@ -1,7 +1,6 @@
 package indexer
 
 import (
-	"context"
 	"fmt"
 	"math/big"
 	"time"
@@ -18,12 +17,11 @@ import (
 //     c.PendingTransactionCount()
 // }
 
-func Process(endpoint string, database *data.Database, quit *bool, startingHeight uint64, sleepDuration time.Duration) {
+func Process(client *ethclient.EthClient, database *data.Database, quit *bool, startingHeight uint64, sleepDuration time.Duration) {
 	logger.LogInfo("indexer is starting...")
-	c := ethclient.NewClient(context.Background(), endpoint, 5)
-	database.ChainID = c.ChainID().String()
+	database.ChainID = client.ChainID().String()
 
-	height := c.BlockNumber()
+	height := client.BlockNumber()
 
 	endHeight := height
 	amountOfBlocks := uint64(500)
@@ -32,10 +30,10 @@ func Process(endpoint string, database *data.Database, quit *bool, startingHeigh
 		endHeight = startingHeight + amountOfBlocks
 	}
 
-	eth.ProcessBlocks(c, database, big.NewInt(int64(startingHeight)), big.NewInt(int64(endHeight)))
+	eth.ProcessBlocks(client, database, big.NewInt(int64(startingHeight)), big.NewInt(int64(endHeight)))
 
 	for !*quit {
-		newHeight := c.BlockNumber()
+		newHeight := client.BlockNumber()
 
 		if newHeight != endHeight {
 			startingHeight = endHeight
@@ -47,7 +45,7 @@ func Process(endpoint string, database *data.Database, quit *bool, startingHeigh
 
 			logger.LogInfo(fmt.Sprintf("Heights: %d %d", startingHeight, endHeight))
 
-			eth.ProcessBlocks(c, database, big.NewInt(int64(startingHeight)), big.NewInt(int64(endHeight)))
+			eth.ProcessBlocks(client, database, big.NewInt(int64(startingHeight)), big.NewInt(int64(endHeight)))
 		}
 
 		database.LastHeight = newHeight

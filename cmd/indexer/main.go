@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"time"
 
+	"github.com/bocha-io/ethclient/x/ethclient"
 	"github.com/bocha-io/garnet/x/indexer"
 	"github.com/bocha-io/garnet/x/indexer/data"
 	"github.com/bocha-io/logger"
@@ -23,7 +25,7 @@ func main() {
 	// Index the database
 	quit := false
 	database := data.NewDatabase()
-	go indexer.Process(os.Args[1], database, &quit, 0, 100*time.Millisecond)
+	go indexer.Process(ethclient.NewClient(context.Background(), os.Args[1], 5), database, &quit, 0, 100*time.Millisecond)
 
 	// Set up the GUI
 	ui := NewDebugUI()
